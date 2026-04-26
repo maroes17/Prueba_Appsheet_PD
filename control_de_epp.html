@@ -1,35 +1,127 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Resumen de Caja</title>
+    <meta charset="UTF-8">
+    <title>Reporte de Caja - A4</title>
+    <style>
+        /* Configuración de la página A4 */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Contenedor de la hoja */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 10mm auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Estilos de impresión */
+        @media print {
+            body { background: none; }
+            .page { margin: 0; box-shadow: none; }
+            .no-print { display: none; } /* Oculta botones al imprimir */
+        }
+
+        /* Diseño del Reporte */
+        .header {
+            border-bottom: 2px solid #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        h1 { color: #2c3e50; margin: 0; font-size: 24pt; }
+        .data-row {
+            margin: 15px 0;
+            font-size: 12pt;
+            border-bottom: 1px dotted #ccc;
+            padding-bottom: 5px;
+        }
+        .label { font-weight: bold; color: #555; width: 200px; display: inline-block; }
+        
+        /* Botón Flotante para Descargar/Imprimir */
+        .btn-print {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Resumen de Apertura y Cierre</h1>
-    <p id="nombre"><strong>Nombre:</strong> </p>
-    <p id="desde"><strong>Fecha de Apertura:</strong> </p>
-    <p id="faltante"><strong>Valor Faltante:</strong> </p>
+
+    <button class="btn-print no-print" onclick="window.print()">Descargar / Imprimir PDF</button>
+
+    <div class="page">
+        <div class="header">
+            <h1>Reporte de Caja</h1>
+            <div id="fecha-actual" style="text-align: right;"></div>
+        </div>
+
+        <div class="data-row">
+            <span class="label">Nombre del Responsable:</span>
+            <span id="nombre"></span>
+        </div>
+        <div class="data-row">
+            <span class="label">Fecha de Apertura:</span>
+            <span id="desde"></span>
+        </div>
+        <div class="data-row">
+            <span class="label">Cuadro de Caja:</span>
+            <span id="cuadro"></span>
+        </div>
+        <div class="data-row">
+            <span class="label">Valor Faltante:</span>
+            <span id="faltante" style="color: red;"></span>
+        </div>
+        <div class="data-row">
+            <span class="label">Valor Excedente:</span>
+            <span id="excedente" style="color: green;"></span>
+        </div>
+        
+        <div style="margin-top: 50px; border-top: 1px solid #000; width: 200px; text-align: center;">
+            Firma del Responsable
+        </div>
+    </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // 1. Obtener los parámetros de la URL
-            const valores = window.location.search;
-            const urlParams = new URLSearchParams(valores);
+            // Obtener parámetros de la URL
+            const urlParams = new URLSearchParams(window.location.search);
 
-            // 2. Extraer cada dato por su nombre (el que definiste en AppSheet)
-            const nombre = urlParams.get('nombre');
-            const desde = urlParams.get('desde');
-            const faltante = urlParams.get('faltante');
+            // Mapear IDs de HTML con parámetros de la URL
+            const campos = ['nombre', 'desde', 'cuadro', 'faltante', 'excedente'];
+            
+            campos.forEach(campo => {
+                const valor = urlParams.get(campo);
+                if (valor) {
+                    document.getElementById(campo).innerText = valor;
+                }
+            });
 
-            // 3. Insertar los datos en el DOM (en las etiquetas <p>)
-            if(nombre) {
-                document.getElementById('nombre').innerHTML += nombre;
-            }
-            if(desde) {
-                document.getElementById('desde').innerHTML += desde;
-            }
-            if(faltante) {
-                document.getElementById('faltante').innerHTML += faltante;
-            }
+            // Poner la fecha de hoy en el reporte
+            document.getElementById('fecha-actual').innerText = new Date().toLocaleDateString();
         });
     </script>
 </body>
