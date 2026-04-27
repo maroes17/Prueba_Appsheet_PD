@@ -2,135 +2,112 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reporte de Caja - A4</title>
+    <title>Entrega de EPP - A4</title>
     <style>
-        /* Configuración de la página A4 */
-        @page {
-            size: A4;
-            margin: 0;
-        }
-        body {
-            background-color: #f0f0f0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+        @page { size: A4; margin: 0; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .page { width: 210mm; min-height: 297mm; padding: 15mm; margin: 10mm auto; background: white; box-sizing: border-box; }
+        
+        /* Encabezado */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+        .logo { font-weight: bold; font-size: 18px; }
+        .title { text-align: center; flex-grow: 1; font-weight: bold; font-size: 16px; }
 
-        /* Contenedor de la hoja */
-        .page {
-            width: 210mm;
-            min-height: 297mm;
-            padding: 20mm;
-            margin: 10mm auto;
-            background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-            position: relative;
-        }
+        /* Textos Legales */
+        .legal { font-size: 9px; text-align: justify; margin: 15px 0; line-height: 1.2; }
 
-        /* Estilos de impresión */
+        /* Información del Trabajador */
+        .info-box { margin-bottom: 20px; border: 1px solid #000; padding: 10px; font-size: 12px; }
+        .info-row { display: flex; margin-bottom: 5px; }
+        .label { font-weight: bold; width: 150px; }
+
+        /* Tabla de Productos */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 11px; }
+        th { background-color: #eee; }
+
+        /* Firmas */
+        .signature-section { margin-top: 50px; display: flex; justify-content: space-around; text-align: center; font-size: 11px; }
+        .sig-box { border-top: 1px solid #000; width: 200px; padding-top: 5px; }
+
         @media print {
             body { background: none; }
             .page { margin: 0; box-shadow: none; }
-            .no-print { display: none; } /* Oculta botones al imprimir */
+            .btn-print { display: none; }
         }
-
-        /* Diseño del Reporte */
-        .header {
-            border-bottom: 2px solid #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-        }
-        h1 { color: #2c3e50; margin: 0; font-size: 24pt; }
-        .data-row {
-            margin: 15px 0;
-            font-size: 12pt;
-            border-bottom: 1px dotted #ccc;
-            padding-bottom: 5px;
-        }
-        .label { font-weight: bold; color: #555; width: 200px; display: inline-block; }
-        
-        /* Botón Flotante para Descargar/Imprimir */
-        .btn-print {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #27ae60;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            cursor: pointer;
-            border: none;
-        }
+        .btn-print { position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <button class="btn-print no-print" onclick="window.print()">Descargar / Imprimir PDF</button>
+    <button class="btn-print" onclick="window.print()">Imprimir / Guardar PDF</button>
 
     <div class="page">
         <div class="header">
-            <h1>Reporte de Caja</h1>
-            <div id="fecha-actual" style="text-align: right;"></div>
+            <div class="logo">COREDUC</div>
+            <div class="title">ENTREGA DE ELEMENTOS DE PROTECCIÓN PERSONAL [cite: 3]</div>
+            <div style="font-size: 10px;">N° Entrega: <span id="nro_entrega"></span></div>
         </div>
 
-        <div class="data-row">
-            <span class="label">Nombre del Responsable:</span>
-            <span id="nombre"></span>
+        <div class="legal">
+            De acuerdo a lo estipulado en la Ley 16.744, Art. 68 inciso tres "Las empresas deberán proporcionar a sus trabajadores, los equipos e implementos de protección necesarios, no pudiendo en caso alguno cobrarles su valor". Según el D.S 594 Artículo 53, el empleador deberá proporcionarlos libres de costo y el trabajador deberá usarlos en forma permanente[cite: 6, 7].
         </div>
-        <div class="data-row">
-            <span class="label">Fecha de Apertura:</span>
-            <span id="desde"></span>
+
+        <div class="info-box">
+            <div class="info-row"><span class="label">NOMBRE TRABAJADOR:</span> <span id="conductor"></span></div>
+            <div class="info-row"><span class="label">FECHA DE RECEPCIÓN:</span> <span id="fecha"></span></div>
         </div>
-        <div class="data-row">
-            <span class="label">Cuadro de Caja:</span>
-            <span id="cuadro"></span>
-        </div>
-        <div class="data-row">
-            <span class="label">Valor Faltante:</span>
-            <span id="faltante" style="color: red;"></span>
-        </div>
-        <div class="data-row">
-            <span class="label">Valor Excedente:</span>
-            <span id="excedente" style="color: green;"></span>
-        </div>
-        
-        <div style="margin-top: 50px; border-top: 1px solid #000; width: 200px; text-align: center;">
-            Firma del Responsable
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ELEMENTO ENTREGADO [cite: 13]</th>
+                    <th>CANTIDAD</th>
+                    <th>FIRMA RECIBÍ CONFORME [cite: 13]</th>
+                </tr>
+            </thead>
+            <tbody id="lista_productos">
+                </tbody>
+        </table>
+
+        <p style="font-size: 10px; margin-top: 15px;">
+            El trabajador se compromete a mantener los elementos en buen estado y declara haberlos recibido en forma gratuita[cite: 14].
+        </p>
+
+        <div class="signature-section">
+            <div class="sig-box">Firma Trabajador</div>
+            <div class="sig-box">Firma Entrega (Bodega)</div>
         </div>
     </div>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Obtener parámetros de la URL
-            const urlParams = new URLSearchParams(window.location.search);
-
-            // Mapear IDs de HTML con parámetros de la URL
-            const campos = ['nombre', 'desde', 'cuadro', 'faltante', 'excedente'];
+            const params = new URLSearchParams(window.location.search);
             
-            campos.forEach(campo => {
-                const valor = urlParams.get(campo);
-                if (valor) {
-                    document.getElementById(campo).innerText = valor;
-                }
-            });
+            // Datos generales
+            document.getElementById('nro_entrega').innerText = params.get('nro') || '---';
+            document.getElementById('conductor').innerText = params.get('conductor') || '---';
+            document.getElementById('fecha').innerText = params.get('fecha') || '---';
 
-            // Poner la fecha de hoy en el reporte
-            document.getElementById('fecha-actual').innerText = new Date().toLocaleDateString();
+            // Lógica para procesar la lista de productos
+            // Esperamos los productos en formato: Item1,Item2 y cantidades: 1,2
+            const productos = params.get('prod') ? params.get('prod').split(',') : [];
+            const cantidades = params.get('cant') ? params.get('cant').split(',') : [];
+            const tbody = document.getElementById('lista_productos');
+
+            if (productos.length > 0) {
+                productos.forEach((p, index) => {
+                    const row = `<tr>
+                        <td>${p}</td>
+                        <td>${cantidades[index] || 1}</td>
+                        <td></td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3">No se registraron productos</td></tr>';
+            }
         });
-
-        window.onload = function() {
-    // Esto hace que la ventana de "Guardar como PDF" se abra sola al cargar
-    setTimeout(() => {
-        window.print();
-    }, 1000); // Espera 1 segundo para asegurar que los datos de AppSheet cargaron
-};
-        
     </script>
 </body>
 </html>
