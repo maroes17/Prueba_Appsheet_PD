@@ -123,6 +123,14 @@
             // Poner la fecha de hoy en el reporte
             document.getElementById('fecha-actual').innerText = new Date().toLocaleDateString();
         });
+
+        window.onload = function() {
+    // Esto hace que la ventana de "Guardar como PDF" se abra sola al cargar
+    setTimeout(() => {
+        window.print();
+    }, 1000); // Espera 1 segundo para asegurar que los datos de AppSheet cargaron
+};
+        
     </script>
 </body>
 </html>
