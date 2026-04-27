@@ -4,40 +4,40 @@
     <meta charset="UTF-8">
     <title>Entrega de EPP - A4</title>
     <style>
-    /* El selector '*' aplica a todas las etiquetas sin excepción */
+    /* 1. Selector Universal: Forza el tamaño en absolutamente TODO */
     * {
+        font-size: 18px !important; /* Ajusta este número si lo quieres aún más grande */
+        line-height: 1.4 !important;
         -webkit-print-color-adjust: exact;
     }
 
-    html, body {
-        margin: 0;
-        padding: 0;
-        background-color: #f0f0f0;
+    /* 2. Excepciones para Títulos (Para que sean más grandes que el resto) */
+    h1, .logo, .title {
+        font-size: 24px !important;
+        font-weight: bold !important;
     }
 
-    /* Forzamos el tamaño en la página y sus hijos */
-    .page, .page *, p, span, div, td, th {
-        font-size: 18px !important; /* Prueba con 18px o incluso 20px para notar el cambio */
-        line-height: 1.5 !important;
-        color: #000 !important;
+    /* 3. Ajuste específico para el bloque legal */
+    .legal {
+        display: block !important;
+        margin: 20px 0 !important;
+        text-align: justify !important;
+        /* Aseguramos que no herede tamaños pequeños de clases previas */
+        font-size: 18px !important; 
     }
 
+    /* 4. Estructura de la página A4 */
     .page {
         width: 210mm;
         min-height: 297mm;
         padding: 20mm;
         margin: 10mm auto;
         background: white;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        border: 1px solid #d3d3d3;
         box-sizing: border-box;
     }
 
-    /* Títulos más grandes */
-    h1, .title {
-        font-size: 24px !important;
-        font-weight: bold !important;
-    }
-
+    /* 5. Tabla de productos */
     table {
         width: 100%;
         border-collapse: collapse;
@@ -51,8 +51,8 @@
 
     @media print {
         body { background: none; }
-        .page { margin: 0; box-shadow: none; }
-        .no-print { display: none; }
+        .page { margin: 0; border: none; }
+        .btn-print { display: none; }
     }
 </style>
 </head>
