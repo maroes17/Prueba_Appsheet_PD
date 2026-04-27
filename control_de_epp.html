@@ -9,12 +9,13 @@
         .page { width: 210mm; min-height: 297mm; padding: 15mm; margin: 10mm auto; background: white; box-sizing: border-box; }
         
         /* Encabezado */
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
-        .logo { font-weight: bold; font-size: 18px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;}
+        .logo img { max-height: 100px; display: block; }
+        /*.logo img { font-weight: bold; font-size: 18px; }*/
         .title { text-align: center; flex-grow: 1; font-weight: bold; font-size: 16px; }
 
         /* Textos Legales */
-        .legal { font-size: 9px; text-align: justify; margin: 15px 0; line-height: 1.2; }
+        .legal { font-size: 11px; text-align: justify; margin: 15px 0; line-height: 1.2; }
 
         /* Información del Trabajador */
         .info-box { margin-bottom: 20px; border: 1px solid #000; padding: 10px; font-size: 12px; }
@@ -27,8 +28,9 @@
         th { background-color: #eee; }
 
         /* Firmas */
-        .signature-section { margin-top: 50px; display: flex; justify-content: space-around; text-align: center; font-size: 11px; }
+        .signature-section { margin-top: 100px; display: flex; justify-content: space-around; text-align: center; font-size: 11px; }
         .sig-box { border-top: 1px solid #000; width: 200px; padding-top: 5px; }
+
 
         @media print {
             body { background: none; }
@@ -44,7 +46,9 @@
 
     <div class="page">
         <div class="header">
-            <div class="logo">COREDUC</div>
+            <div class="logo">
+                <img src="https://lh3.googleusercontent.com/d/1sSPmBQGH6qYzxH3Sl0PWqy-l1LqS9qUO" alt="Logo" style="height: 100px; width: auto;">
+            </div>
             <div class="title">ENTREGA DE ELEMENTOS DE PROTECCIÓN PERSONAL</div>
             <div style="font-size: 10px;">N° Entrega: <span id="nro_entrega"></span></div>
         </div>
@@ -70,7 +74,7 @@
                 </tbody>
         </table>
 
-        <p style="font-size: 10px; margin-top: 15px;">
+        <p style="font-size: 11px; margin-top: 15px;">
             El trabajador se compromete a mantener los elementos en buen estado y declara haberlos recibido en forma gratuita.
         </p>
 
