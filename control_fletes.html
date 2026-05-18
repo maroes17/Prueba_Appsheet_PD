@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Control de Fletes - Romanesco</title>
+    <style>
+        @page { size: A4; margin: 0; }
+        * {
+            font-family: 'Arial', sans-serif;
+            font-size: 14px !important;
+            line-height: 1.3 !important;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+        }
+        body { margin: 0; padding: 0; background-color: #f0f0f0; }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm;
+            margin: 10mm auto;
+            background: white;
+            border: 1px solid #ccc;
+            position: relative;
+        }
+
+        /* Encabezado */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+        .logo-section { display: flex; flex-direction: column; align-items: center; }
+        .logo-section img { height: 60px; width: auto; margin-bottom: 5px; }
+        .company-name { font-size: 20px !important; font-weight: bold !important; text-transform: uppercase; }
+        .title-section { text-align: center; }
+        .main-title { font-size: 24px !important; font-weight: bold !important; letter-spacing: 1px; }
+        .doc-number { font-size: 20px !important; font-weight: bold !important; margin-top: 10px; }
+
+        /* Bloque Datos Generales */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 25px; margin-bottom: 20px; }
+        .info-cell { border-bottom: 1px solid #000; padding-bottom: 2px; display: flex; }
+        .label { font-weight: bold; margin-right: 5px; white-space: nowrap; }
+        .value { flex-grow: 1; text-align: left; }
+
+        /* Contenedor de Dos Columnas de Gastos */
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 15px; }
+        .column-title { font-weight: bold; font-size: 15px !important; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
+
+        /* Filas de Gastos */
+        .gasto-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted #ccc; padding-bottom: 2px; }
+        .gasto-monto { font-weight: bold; width: 100px; text-align: right; }
+
+        /* Totales y Saldos */
+        .total-box { border-top: 2px solid #000; margin-top: 10px; padding-top: 5px; display: flex; justify-content: space-between; font-weight: bold; }
+        .saldo-section { margin-top: 15px; padding: 8px; border: 1px solid #000; background-color: #f9f9f9; }
+        .saldo-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+
+        /* Sección de Firmas */
+        .signature-section { margin-top: 60px; display: flex; justify-content: space-around; text-align: center; }
+        .sig-box { border-top: 1px solid #000; width: 220px; padding-top: 5px; font-size: 12px !important; }
+
+        @media print {
+            body { background: none; }
+            .page { margin: 0; border: none; }
+            .btn-print { display: none; }
+        }
+        .btn-print { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; background: #27ae60; color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print" onclick="window.print()">Descargar / Imprimir PDF</button>
+
+    <div class="page">
+        <div class="header">
+            <div class="logo-section">
+                <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+                <span class="company-name">Romanesco</span>
+                <span style="font-size: 10px !important; letter-spacing: 2px;">TRANSPORTES</span>
+            </div>
+            <div class="title-section">
+                <div class="main-title">CONTROL DE FLETES</div>
+                <div class="doc-number">N° <span id="nro_control"></span></div>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-cell"><span class="label">Nombre Chofer:</span><span class="value" id="chofer"></span></div>
+            <div class="info-cell"><span class="label">Salida de:</span><span class="value" id="origen"></span></div>
+            <div class="info-cell"><span class="label">Patente Camión:</span><span class="value" id="patente_camion"></span></div>
+            <div class="info-cell"><span class="label">Llegada a:</span><span class="value" id="destino"></span></div>
+            <div class="info-cell"><span class="label">Patente Equipo:</span><span class="value" id="patente_equipo"></span></div>
+            <div class="info-cell"><span class="label">Guías N°:</span><span class="value" id="guias"></span></div>
+            <div class="info-cell"><span class="label">Fecha Salida:</span><span class="value" id="fecha_salida"></span></div>
+            <div class="info-cell"><span class="label">Fecha Llegada:</span><span class="value" id="fecha_llegada"></span></div>
+        </div>
+
+        <div class="columns-container">
+            
+            <div>
+                <div class="column-title">Moneda Chilena</div>
+                <div id="gastos_clp">
+                    </div>
+                <div class="total-box">
+                    <span>Total Gastos</span>
+                    <span id="total_gastos_clp">$0</span>
+                </div>
+                <div class="saldo-section">
+                    <div class="saldo-row"><span>Dinero Recibido (Anticipos):</span><span id="anti_clp">$0</span></div>
+                    <div class="saldo-row"><span>Total Gastos:</span><span id="gastos_restar_clp">$0</span></div>
+                    <div class="total-box" style="font-size: 15px !important;">
+                        <span id="label_saldo_clp">Saldo:</span>
+                        <span id="saldo_final_clp">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="column-title">Moneda Argentina</div>
+                <div id="gastos_ars">
+                    </div>
+                <div class="total-box">
+                    <span>Total Gastos</span>
+                    <span id="total_gastos_ars">$0</span>
+                </div>
+                <div class="saldo-section">
+                    <div class="saldo-row"><span>Dinero Recibido (Anticipos):</span><span id="anti_ars">$0</span></div>
+                    <div class="saldo-row"><span>Total Gastos:</span><span id="gastos_restar_ars">$0</span></div>
+                    <div class="total-box" style="font-size: 15px !important;">
+                        <span id="label_saldo_ars">Saldo:</span>
+                        <span id="saldo_final_ars">$0</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="signature-section">
+            <div class="sig-box">Nombre y Firma Recibe Rendición</div>
+            <div class="sig-box">Firma Conductor Entregado Conforme</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Mapeo campos básicos
+            document.getElementById('nro_control').innerText = params.get('id') || '------';
+            document.getElementById('chofer').innerText = params.get('chofer') || '------';
+            document.getElementById('patente_camion').innerText = params.get('patente') || '------';
+            document.getElementById('patente_equipo').innerText = params.get('equipo') || '------';
+            document.getElementById('fecha_salida').innerText = params.get('f_salida') || '------';
+            document.getElementById('origen').innerText = params.get('origen') || '------';
+            document.getElementById('destino').innerText = params.get('destino') || '------';
+            document.getElementById('guias').innerText = params.get('guias') || '------';
+            document.getElementById('fecha_llegada').innerText = params.get('f_llegada') || '------';
+
+            // Procesar Gastos Dinámicos
+            const categorias = params.get('g_cat') ? params.get('g_cat').split(',') : [];
+            const montos = params.get('g_mon') ? params.get('g_mon').split(',') : [];
+            const monedas = params.get('g_curr') ? params.get('g_curr').split(',') : [];
+
+            let totalCLP = 0;
+            let totalARS = 0;
+
+            // Arrays para acumular conceptos consolidados y evitar duplicados visuales
+            let resumenCLP = {};
+            let resumenARS = {};
+
+            categorias.forEach((cat, index) => {
+                let monto = parseFloat(montos[index]) || 0;
+                let moneda = monedas[index] ? monedas[index].toUpperCase().trim() : 'CLP';
+
+                if (moneda === 'CLP' || moneda === 'CHILE' || moneda === 'MONEDA NACIONAL') {
+                    resumenCLP[cat] = (resumenCLP[cat] || 0) + monto;
+                    totalCLP += monto;
+                } else {
+                    resumenARS[cat] = (resumenARS[cat] || 0) + monto;
+                    totalARS += monto;
+                }
+            });
+
+            // Renderizar lista consolidada CLP
+            const containerCLP = document.getElementById('gastos_clp');
+            for (let cat in resumenCLP) {
+                containerCLP.innerHTML += `<div class="gasto-row"><span>${cat}</span><span class="gasto-monto">$${resumenCLP[cat].toLocaleString('es-CL')}</span></div>`;
+            }
+            // Renderizar lista consolidada ARS
+            const containerARS = document.getElementById('gastos_ars');
+            for (let cat in resumenARS) {
+                containerARS.innerHTML += `<div class="gasto-row"><span>${cat}</span><span class="gasto-monto">$${resumenARS[cat].toLocaleString('es-AR')}</span></div>`;
+            }
+
+            // Mostrar Totales de Gastos
+            document.getElementById('total_gastos_clp').innerText = `$${totalCLP.toLocaleString('es-CL')}`;
+            document.getElementById('gastos_restar_clp').innerText = `$${totalCLP.toLocaleString('es-CL')}`;
+            document.getElementById('total_gastos_ars').innerText = `$${totalARS.toLocaleString('es-AR')}`;
+            document.getElementById('gastos_restar_ars').innerText = `$${totalARS.toLocaleString('es-AR')}`;
+
+            // Procesar Anticipos Totales enviados desde AppSheet
+            const antiCLP = parseFloat(params.get('anti_clp')) || 0;
+            const antiARS = parseFloat(params.get('anti_ars')) || 0;
+
+            document.getElementById('anti_clp').innerText = `$${antiCLP.toLocaleString('es-CL')}`;
+            document.getElementById('anti_ars').innerText = `$${antiARS.toLocaleString('es-AR')}`;
+
+            // Calcular saldos finales (Anticipo - Gastos)
+            let saldoCLP = antiCLP - totalCLP;
+            let saldoARS = antiARS - totalARS;
+
+            // Formatear visualmente si es A Favor o En Contra
+            document.getElementById('saldo_final_clp').innerText = `$${Math.abs(saldoCLP).toLocaleString('es-CL')}`;
+            document.getElementById('label_saldo_clp').innerText = saldoCLP >= 0 ? "Saldo A Favor:" : "Saldo En Contra:";
+            
+            document.getElementById('saldo_final_ars').innerText = `$${Math.abs(saldoARS).toLocaleString('es-AR')}`;
+            document.getElementById('label_saldo_ars').innerText = saldoARS >= 0 ? "Saldo A Favor:" : "Saldo En Contra:";
+        });
+    </script>
+</body>
+</html>
