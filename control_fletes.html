@@ -7,7 +7,7 @@
         @page { size: A4; margin: 0; }
         * {
             font-family: 'Arial', sans-serif;
-            font-size: 14px !important;
+            font-size: 15px !important;
             line-height: 1.3 !important;
             box-sizing: border-box;
             -webkit-print-color-adjust: exact;
@@ -17,44 +17,43 @@
         .page {
             width: 210mm;
             min-height: 297mm;
-            padding: 15mm;
+            padding: 18mm;
             margin: 10mm auto;
             background: white;
             border: 1px solid #ccc;
-            position: relative;
         }
 
         /* Encabezado */
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
         .logo-section { display: flex; flex-direction: column; align-items: center; }
-        .logo-section img { height: 60px; width: auto; margin-bottom: 5px; }
-        .company-name { font-size: 20px !important; font-weight: bold !important; text-transform: uppercase; }
+        .logo-section img { height: 65px; width: auto; margin-bottom: 5px; }
+        .company-name { font-size: 22px !important; font-weight: bold !important; text-transform: uppercase; letter-spacing: 1px; }
         .title-section { text-align: center; }
-        .main-title { font-size: 24px !important; font-weight: bold !important; letter-spacing: 1px; }
-        .doc-number { font-size: 20px !important; font-weight: bold !important; margin-top: 10px; }
+        .main-title { font-size: 26px !important; font-weight: bold !important; letter-spacing: 1px; }
+        .doc-number { font-size: 20px !important; font-weight: bold !important; margin-top: 5px; color: #333; }
 
-        /* Bloque Datos Generales */
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 25px; margin-bottom: 20px; }
+        /* Datos Generales */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; margin-bottom: 25px; }
         .info-cell { border-bottom: 1px solid #000; padding-bottom: 2px; display: flex; }
         .label { font-weight: bold; margin-right: 5px; white-space: nowrap; }
         .value { flex-grow: 1; text-align: left; }
 
-        /* Contenedor de Dos Columnas de Gastos */
-        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 15px; }
-        .column-title { font-weight: bold; font-size: 15px !important; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 10px; }
+        /* Estructura Columnas Gastos */
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 15px; }
+        .column-title { font-weight: bold; font-size: 16px !important; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 12px; text-transform: uppercase; }
 
-        /* Filas de Gastos */
-        .gasto-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dotted #ccc; padding-bottom: 2px; }
-        .gasto-monto { font-weight: bold; width: 100px; text-align: right; }
+        /* Filas de Categorías */
+        .gasto-row { display: flex; justify-content: space-between; margin-bottom: 9px; border-bottom: 1px dotted #999; padding-bottom: 3px; }
+        .gasto-monto { font-weight: bold; width: 110px; text-align: right; }
 
-        /* Totales y Saldos */
-        .total-box { border-top: 2px solid #000; margin-top: 10px; padding-top: 5px; display: flex; justify-content: space-between; font-weight: bold; }
-        .saldo-section { margin-top: 15px; padding: 8px; border: 1px solid #000; background-color: #f9f9f9; }
-        .saldo-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        /* Contenedores de Totales y Saldos */
+        .total-box { border-top: 2px solid #000; margin-top: 12px; padding-top: 6px; display: flex; justify-content: space-between; font-weight: bold; background-color: #fcfcfc; }
+        .saldo-section { margin-top: 20px; padding: 10px; border: 1px solid #000; background-color: #f9f9f9; }
+        .saldo-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
 
-        /* Sección de Firmas */
-        .signature-section { margin-top: 60px; display: flex; justify-content: space-around; text-align: center; }
-        .sig-box { border-top: 1px solid #000; width: 220px; padding-top: 5px; font-size: 12px !important; }
+        /* Firmas */
+        .signature-section { margin-top: 70px; display: flex; justify-content: space-around; text-align: center; }
+        .sig-box { border-top: 1px solid #000; width: 230px; padding-top: 6px; font-size: 13px !important; font-weight: bold; }
 
         @media print {
             body { background: none; }
@@ -73,7 +72,7 @@
             <div class="logo-section">
                 <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
                 <span class="company-name">Romanesco</span>
-                <span style="font-size: 10px !important; letter-spacing: 2px;">TRANSPORTES</span>
+                <span style="font-size: 11px !important; letter-spacing: 3px; font-weight: bold;">TRANSPORTES</span>
             </div>
             <div class="title-section">
                 <div class="main-title">CONTROL DE FLETES</div>
@@ -103,9 +102,9 @@
                     <span id="total_gastos_clp">$0</span>
                 </div>
                 <div class="saldo-section">
-                    <div class="saldo-row"><span>Dinero Recibido (Anticipos):</span><span id="anti_clp">$0</span></div>
+                    <div class="saldo-row"><span>Dinero Recibido:</span><span id="anti_clp">$0</span></div>
                     <div class="saldo-row"><span>Total Gastos:</span><span id="gastos_restar_clp">$0</span></div>
-                    <div class="total-box" style="font-size: 15px !important;">
+                    <div class="total-box" style="font-size: 16px !important; border-top: 1px solid #000;">
                         <span id="label_saldo_clp">Saldo:</span>
                         <span id="saldo_final_clp">$0</span>
                     </div>
@@ -121,9 +120,9 @@
                     <span id="total_gastos_ars">$0</span>
                 </div>
                 <div class="saldo-section">
-                    <div class="saldo-row"><span>Dinero Recibido (Anticipos):</span><span id="anti_ars">$0</span></div>
+                    <div class="saldo-row"><span>Dinero Recibido:</span><span id="anti_ars">$0</span></div>
                     <div class="saldo-row"><span>Total Gastos:</span><span id="gastos_restar_ars">$0</span></div>
-                    <div class="total-box" style="font-size: 15px !important;">
+                    <div class="total-box" style="font-size: 16px !important; border-top: 1px solid #000;">
                         <span id="label_saldo_ars">Saldo:</span>
                         <span id="saldo_final_ars">$0</span>
                     </div>
@@ -142,7 +141,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             const params = new URLSearchParams(window.location.search);
             
-            // Mapeo campos básicos
+            // Cargar datos generales
             document.getElementById('nro_control').innerText = params.get('id') || '------';
             document.getElementById('chofer').innerText = params.get('chofer') || '------';
             document.getElementById('patente_camion').innerText = params.get('patente') || '------';
@@ -153,65 +152,94 @@
             document.getElementById('guias').innerText = params.get('guias') || '------';
             document.getElementById('fecha_llegada').innerText = params.get('f_llegada') || '------';
 
-            // Procesar Gastos Dinámicos
-            const categorias = params.get('g_cat') ? params.get('g_cat').split(',') : [];
-            const montos = params.get('g_mon') ? params.get('g_mon').split(',') : [];
-            const monedas = params.get('g_curr') ? params.get('g_curr').split(',') : [];
+            // Estructuras de Categorías Requeridas Fijas
+            const catsFijasCLP = ["Peajes", "Viáticos", "Pasajes", "Teléfono", "Impresión"];
+            const catsFijasARS = ["Peajes", "Migración", "Ag. Aduana", "Viático", "Teléfono", "Sanidad", "Parqueadero", "Vulcanización", "Otros"];
 
-            let totalCLP = 0;
-            let totalARS = 0;
+            // Inicializar acumuladores en $0 para cumplir la condición fija
+            let saldoCategoriasCLP = {};
+            catsFijasCLP.forEach(c => saldoCategoriasCLP[c.toLowerCase().trim()] = 0);
 
-            // Arrays para acumular conceptos consolidados y evitar duplicados visuales
-            let resumenCLP = {};
-            let resumenARS = {};
+            let saldoCategoriasARS = {};
+            catsFijasARS.forEach(c => saldoCategoriasARS[c.toLowerCase().trim()] = 0);
 
-            categorias.forEach((cat, index) => {
-                let monto = parseFloat(montos[index]) || 0;
-                let moneda = monedas[index] ? monedas[index].toUpperCase().trim() : 'CLP';
+            // Capturar datos provenientes de AppSheet
+            const lasCategorias = params.get('g_cat') ? params.get('g_cat').split(',') : [];
+            const losMontos = params.get('g_mon') ? params.get('g_mon').split(',') : [];
+            const lasMonedas = params.get('g_curr') ? params.get('g_curr').split(',') : [];
+
+            let totalGastosCLP = 0;
+            let totalGastosARS = 0;
+
+            // Procesar y sumar dinámicamente los gastos asignándolos a su categoría correspondiente
+            lasCategorias.forEach((cat, index) => {
+                let monto = parseFloat(losMontos[index]) || 0;
+                let moneda = lasMonedas[index] ? lasMonedas[index].toUpperCase().trim() : 'CLP';
+                let nombreCatLimpio = cat.toLowerCase().trim();
 
                 if (moneda === 'CLP' || moneda === 'CHILE' || moneda === 'MONEDA NACIONAL') {
-                    resumenCLP[cat] = (resumenCLP[cat] || 0) + monto;
-                    totalCLP += monto;
+                    // Si la categoría existe en el listado, la suma; de lo contrario la acumula en 'otros' por seguridad
+                    if (saldoCategoriasCLP.hasOwnProperty(nombreCatLimpio)) {
+                        saldoCategoriasCLP[nombreCatLimpio] += monto;
+                    } else {
+                        // En CLP si no coincide, lo asignamos conceptualmente al ítem base o impresión si aplica
+                        if(saldoCategoriasCLP["impresión"]) saldoCategoriasCLP["impresión"] += monto;
+                    }
+                    totalGastosCLP += monto;
                 } else {
-                    resumenARS[cat] = (resumenARS[cat] || 0) + monto;
-                    totalARS += monto;
+                    if (saldoCategoriasARS.hasOwnProperty(nombreCatLimpio)) {
+                        saldoCategoriasARS[nombreCatLimpio] += monto;
+                    } else {
+                        saldoCategoriasARS["otros"] += monto;
+                    }
+                    totalGastosARS += monto;
                 }
             });
 
-            // Renderizar lista consolidada CLP
-            const containerCLP = document.getElementById('gastos_clp');
-            for (let cat in resumenCLP) {
-                containerCLP.innerHTML += `<div class="gasto-row"><span>${cat}</span><span class="gasto-monto">$${resumenCLP[cat].toLocaleString('es-CL')}</span></div>`;
-            }
-            // Renderizar lista consolidada ARS
-            const containerARS = document.getElementById('gastos_ars');
-            for (let cat in resumenARS) {
-                containerARS.innerHTML += `<div class="gasto-row"><span>${cat}</span><span class="gasto-monto">$${resumenARS[cat].toLocaleString('es-AR')}</span></div>`;
-            }
+            // Dibujar la tabla fija de Moneda Chilena
+            const contenedorCLP = document.getElementById('gastos_clp');
+            catsFijasCLP.forEach(cat => {
+                let valor = saldoCategoriasCLP[cat.toLowerCase().trim()];
+                contenedorCLP.innerHTML += `
+                    <div class="gasto-row">
+                        <span>${cat}</span>
+                        <span class="gasto-monto">$${valor.toLocaleString('es-CL')}</span>
+                    </div>`;
+            });
 
-            // Mostrar Totales de Gastos
-            document.getElementById('total_gastos_clp').innerText = `$${totalCLP.toLocaleString('es-CL')}`;
-            document.getElementById('gastos_restar_clp').innerText = `$${totalCLP.toLocaleString('es-CL')}`;
-            document.getElementById('total_gastos_ars').innerText = `$${totalARS.toLocaleString('es-AR')}`;
-            document.getElementById('gastos_restar_ars').innerText = `$${totalARS.toLocaleString('es-AR')}`;
+            // Dibujar la tabla fija de Moneda Argentina
+            const contenedorARS = document.getElementById('gastos_ars');
+            catsFijasARS.forEach(cat => {
+                let valor = saldoCategoriasARS[cat.toLowerCase().trim()];
+                contenedorARS.innerHTML += `
+                    <div class="gasto-row">
+                        <span>${cat}</span>
+                        <span class="gasto-monto">$${valor.toLocaleString('es-AR')}</span>
+                    </div>`;
+            });
 
-            // Procesar Anticipos Totales enviados desde AppSheet
-            const antiCLP = parseFloat(params.get('anti_clp')) || 0;
-            const antiARS = parseFloat(params.get('anti_ars')) || 0;
+            // Inyectar Totales Matemáticos Calculados
+            document.getElementById('total_gastos_clp').innerText = `$${totalGastosCLP.toLocaleString('es-CL')}`;
+            document.getElementById('gastos_restar_clp').innerText = `$${totalGastosCLP.toLocaleString('es-CL')}`;
+            document.getElementById('total_gastos_ars').innerText = `$${totalGastosARS.toLocaleString('es-AR')}`;
+            document.getElementById('gastos_restar_ars').innerText = `$${totalGastosARS.toLocaleString('es-AR')}`;
 
-            document.getElementById('anti_clp').innerText = `$${antiCLP.toLocaleString('es-CL')}`;
-            document.getElementById('anti_ars').innerText = `$${antiARS.toLocaleString('es-AR')}`;
+            // Obtener y mapear anticipos totales calculados de AppSheet
+            const anticipoCLP = parseFloat(params.get('anti_clp')) || 0;
+            const anticipoARS = parseFloat(params.get('anti_ars')) || 0;
 
-            // Calcular saldos finales (Anticipo - Gastos)
-            let saldoCLP = antiCLP - totalCLP;
-            let saldoARS = antiARS - totalARS;
+            document.getElementById('anti_clp').innerText = `$${anticipoCLP.toLocaleString('es-CL')}`;
+            document.getElementById('anti_ars').innerText = `$${anticipoARS.toLocaleString('es-AR')}`;
 
-            // Formatear visualmente si es A Favor o En Contra
-            document.getElementById('saldo_final_clp').innerText = `$${Math.abs(saldoCLP).toLocaleString('es-CL')}`;
-            document.getElementById('label_saldo_clp').innerText = saldoCLP >= 0 ? "Saldo A Favor:" : "Saldo En Contra:";
+            // Determinar saldos finales matemáticos (Dinero Recibido - Gastos totales ejecutados)
+            let finalCLP = anticipoCLP - totalGastosCLP;
+            let finalARS = anticipoARS - totalGastosARS;
+
+            document.getElementById('saldo_final_clp').innerText = `$${Math.abs(finalCLP).toLocaleString('es-CL')}`;
+            document.getElementById('label_saldo_clp').innerText = finalCLP >= 0 ? "A Favor:" : "En Contra:";
             
-            document.getElementById('saldo_final_ars').innerText = `$${Math.abs(saldoARS).toLocaleString('es-AR')}`;
-            document.getElementById('label_saldo_ars').innerText = saldoARS >= 0 ? "Saldo A Favor:" : "Saldo En Contra:";
+            document.getElementById('saldo_final_ars').innerText = `$${Math.abs(finalARS).toLocaleString('es-AR')}`;
+            document.getElementById('label_saldo_ars').innerText = finalARS >= 0 ? "A Favor:" : "En Contra:";
         });
     </script>
 </body>
