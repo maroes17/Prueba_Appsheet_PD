@@ -44,16 +44,19 @@
 
         /* Filas de Categorías */
         .gasto-row { display: flex; justify-content: space-between; margin-bottom: 9px; border-bottom: 1px dotted #999; padding-bottom: 3px; align-items: flex-end; }
-        .gasto-label-container { display: flex; flex-direction: column; }
+        .gasto-label-container { display: flex; flex-direction: column; width: 100%; }
         .gasto-monto { font-weight: bold; width: 110px; text-align: right; }
         
-        /* Detalle exacto de la celda Notas */
-        .gasto-nota {
+        /* Línea punteada para rellenar a mano con lapicera */
+        .espacio-manual {
             font-size: 12px !important;
-            color: #555 !important;
-            font-style: italic;
-            margin-top: 2px;
+            color: #888 !important;
+            margin-top: 4px;
+            margin-bottom: 2px;
             font-weight: normal !important;
+            border-bottom: 1px dashed #bbb;
+            height: 15px;
+            width: 90%;
         }
 
         /* Contenedores de Totales y Saldos */
@@ -145,6 +148,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             const params = new URLSearchParams(window.location.search);
             
+            // Unificación del N° de Control y el campo Detalle
             const numeroDetalleUnico = params.get('detalle') || params.get('id') || '------';
             document.getElementById('nro_control').innerText = numeroDetalleUnico;
             document.getElementById('detalle').innerText = numeroDetalleUnico;
@@ -160,13 +164,6 @@
 
             let saldoCLP = { peajes: 0, viaticos: 0, pasajes: 0, telefono: 0, impresion: 0 };
             let saldoARS = { peajes: 0, migracion: 0, aduana: 0, viatico: 0, telefono: 0, sanidad: 0, parqueadero: 0, vulcanizacion: 0, repuestos: 0, fotocopia: 0, lavado: 0, otros: 0 };
-
-            // Captura de notas filtradas por separado e individualmente desde la URL
-            let notasRawCLP = params.get('g_not_clp') || "";
-            let notasRawARS = params.get('g_not_ars') || "";
-            
-            let textoNotasCLP = notasRawCLP ? notasRawCLP.replace(/\|/g, ", ").trim() : "";
-            let textoNotasARS = notasRawARS ? notasRawARS.replace(/\|/g, ", ").trim() : "";
 
             const lasCategorias = params.get('g_cat') ? params.get('g_cat').split(',') : [];
             const losMontos = params.get('g_mon') ? params.get('g_mon').split(',') : [];
@@ -211,7 +208,7 @@
                         saldoARS.sanidad += monto;
                     } else if (catLimpia === "parqueadero" || catLimpia === "parkizadero" || catLimpia === "estacionamiento") {
                         saldoARS.parqueadero += monto;
-                    } else if (catLimpia === "vulcanizacion" || catLimpia === "gomereria" || catLinter === "gomeria") {
+                    } else if (catLimpia === "vulcanizacion" || catLimpia === "gomereria" || catLimpia === "gomeria") {
                         saldoARS.vulcanizacion += monto;
                     } else if (catLimpia === "repuesto" || catLimpia === "repuestos") {
                         saldoARS.repuestos += monto;
@@ -225,12 +222,12 @@
                 }
             });
 
-            // Renderizar Columna CLP con sus notas exclusivas
+            // Renderizar Columna CLP con renglón manual para Viáticos
             const contenedorCLP = document.getElementById('gastos_clp');
             catsFijasCLP.forEach(cat => {
                 let keyNormalizada = cat.toLowerCase().replace(/[\s\.\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 let valor = saldoCLP[keyNormalizada] || 0;
-                let subHtml = (keyNormalizada === "viaticos" && textoNotasCLP) ? `<span class="gasto-nota">(${textoNotasCLP})</span>` : '';
+                let subHtml = (keyNormalizada === "viaticos") ? `<div class="espacio-manual"></div>` : '';
                 
                 contenedorCLP.innerHTML += `
                     <div class="gasto-row">
@@ -242,12 +239,12 @@
                     </div>`;
             });
 
-            // Renderizar Columna ARS con sus notas exclusivas
+            // Renderizar Columna ARS con renglón manual para Viático
             const contenedorARS = document.getElementById('gastos_ars');
             catsFijasARS.forEach(cat => {
                 let keyNormalizada = cat.toLowerCase().replace(/[\s\.\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 let valor = saldoARS[keyNormalizada] || 0;
-                let subHtml = (keyNormalizada === "viatico" && textoNotasARS) ? `<span class="gasto-nota">(${textoNotasARS})</span>` : '';
+                let subHtml = (keyNormalizada === "viatico") ? `<div class="espacio-manual"></div>` : '';
                 
                 contenedorARS.innerHTML += `
                     <div class="gasto-row">
