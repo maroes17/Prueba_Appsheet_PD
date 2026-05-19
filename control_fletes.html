@@ -43,18 +43,8 @@
         .column-title { font-weight: bold; font-size: 16px !important; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 12px; text-transform: uppercase; }
 
         /* Filas de Categorías */
-        .gasto-row { display: flex; justify-content: space-between; margin-bottom: 9px; border-bottom: 1px dotted #999; padding-bottom: 3px; align-items: flex-end; }
-        .gasto-label-container { display: flex; flex-direction: column; }
+        .gasto-row { display: flex; justify-content: space-between; margin-bottom: 9px; border-bottom: 1px dotted #999; padding-bottom: 3px; }
         .gasto-monto { font-weight: bold; width: 110px; text-align: right; }
-        
-        /* Detalle Minimalista para los días de viático */
-        .gasto-nota {
-            font-size: 12px !important;
-            color: #666 !important;
-            font-style: italic;
-            margin-top: 1px;
-            font-weight: normal !important;
-        }
 
         /* Contenedores de Totales y Saldos */
         .total-box { border-top: 2px solid #000; margin-top: 12px; padding-top: 6px; display: flex; justify-content: space-between; font-weight: bold; background-color: #fcfcfc; }
@@ -86,13 +76,13 @@
             </div>
             <div class="title-section">
                 <div class="main-title">CONTROL DE FLETES</div>
-                <div class="doc-number">N° <span id="nro_detalle_header"></span></div>
+                <div class="doc-number">N° <span id="nro_control"></span></div>
             </div>
         </div>
 
         <div class="info-grid">
             <div class="info-cell"><span class="label">Nombre Chofer:</span><span class="value" id="chofer"></span></div>
-            <div class="info-cell"><span class="label">N° Control:</span><span class="value" id="nro_control"></span></div>
+            <div class="info-cell"><span class="label">Detalle:</span><span class="value" id="detalle"></span></div>
             <div class="info-cell"><span class="label">Patente Camión:</span><span class="value" id="patente_camion"></span></div>
             <div class="info-cell"><span class="label">Fecha Salida:</span><span class="value" id="fecha_salida"></span></div>
             <div class="info-cell"><span class="label">Patente Equipo:</span><span class="value" id="patente_equipo"></span></div>
@@ -147,33 +137,28 @@
         document.addEventListener("DOMContentLoaded", function() {
             const params = new URLSearchParams(window.location.search);
             
-            // Cargar textos básicos del encabezado
-            document.getElementById('nro_detalle_header').innerText = params.get('detalle') || '------';
+            // Cargar datos mapeados desde la tabla Controles
             document.getElementById('nro_control').innerText = params.get('id') || '------';
             document.getElementById('chofer').innerText = params.get('chofer') || '------';
             document.getElementById('patente_camion').innerText = params.get('patente') || '------';
             document.getElementById('patente_equipo').innerText = params.get('equipo') || '------';
+            document.getElementById('detalle').innerText = params.get('detalle') || '------';
             document.getElementById('fecha_salida').innerText = params.get('f_salida') || '------';
             document.getElementById('fecha_llegada').innerText = params.get('f_llegada') || '------';
 
-            // Listados de mapeo exacto
+            // Categorías fijas requeridas
             const catsFijasCLP = ["Peajes", "Viáticos", "Pasajes", "Teléfono", "Impresión"];
             const catsFijasARS = ["Peajes", "Migración", "Aduana", "Viático", "Teléfono", "Sanidad", "Parqueadero", "Vulcanización", "Repuestos", "Fotocopia", "Lavado", "Otros"];
 
             let saldoCategoriasCLP = {};
-            catsFijasCLP.forEach(c => saldoCategoriasCLP[c.toLowerCase().replace(/\s+/g, '')] = 0);
+            catsFijasCLP.forEach(c => saldoCategoriasCLP[c.toLowerCase().trim()] = 0);
 
             let saldoCategoriasARS = {};
-            catsFijasARS.forEach(c => saldoCategoriasARS[c.toLowerCase().replace(/\s+/g, '')] = 0);
+            catsFijasARS.forEach(c => saldoCategoriasARS[c.toLowerCase().trim()] = 0);
 
-            let notaViaticoCLP = "";
-            let notaViaticoARS = "";
-
-            // Descomponer listas y limpiar espacios fantasmas de AppSheet
             const lasCategorias = params.get('g_cat') ? params.get('g_cat').split(',') : [];
             const losMontos = params.get('g_mon') ? params.get('g_mon').split(',') : [];
             const lasMonedas = params.get('g_curr') ? params.get('g_curr').split(',') : [];
-            const lasNotas = params.get('g_not') ? params.get('g_not').split(',') : [];
 
             let totalGastosCLP = 0;
             let totalGastosARS = 0;
@@ -181,37 +166,18 @@
             lasCategorias.forEach((cat, index) => {
                 let monto = parseFloat(losMontos[index]) || 0;
                 let moneda = lasMonedas[index] ? lasMonedas[index].toUpperCase().trim() : 'CLP';
-                
-                // Normalización extrema: remueve espacios intermedios y acentos para un match perfecto
-                let nombreCatLimpio = cat.toLowerCase().replace(/\s+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                let notaGasto = lasNotas[index] ? lasNotas[index].trim() : "";
-
-                // Ajustar llaves de comparación normalizadas
-                let keyViaticoCLP = "viaticos";
-                let keyViaticoARS = "viatico";
+                let nombreCatLimpio = cat.toLowerCase().trim();
 
                 if (moneda === 'CLP' || moneda === 'CHILE' || moneda === 'MONEDA NACIONAL') {
-                    if (saldoCategoriasCLP.hasOwnProperty(nombreCatLimpio) || nombreCatLimpio === "viatico") {
-                        let llaveCorrecta = nombreCatLimpio === "viatico" ? "viaticos" : nombreCatLimpio;
-                        saldoCategoriasCLP[llaveCorrecta] += monto;
-                        if (llaveCorrecta === "viaticos" && notaGasto) notaViaticoCLP = notaGasto;
+                    if (saldoCategoriasCLP.hasOwnProperty(nombreCatLimpio)) {
+                        saldoCategoriasCLP[nombreCatLimpio] += monto;
                     } else {
-                        if(saldoCategoriasCLP["impresion"]) saldoCategoriasCLP["impresion"] += monto;
+                        if(saldoCategoriasCLP["impresión"]) saldoCategoriasCLP["impresión"] += monto;
                     }
                     totalGastosCLP += monto;
                 } else {
-                    if (saldoCategoriasARS.hasOwnProperty(nombreCatLimpio) || nombreCatLimpio === "viaticos" || nombreCatLimpio === "migraciones") {
-                        let llaveCorrecta = nombreCatLimpio;
-                        if(nombreCatLimpio === "viaticos") llaveCorrecta = "viatico";
-                        if(nombreCatLimpio === "migraciones") llaveCorrecta = "migracion";
-                        if(nombreCatLimpio === "agaduana" || nombreCatLimpio === "ag.aduana") llaveCorrecta = "ag.aduana";
-                        
-                        // Si tras normalizar existe en el objeto
-                        let keyFinal = catsFijasARS.find(c => c.toLowerCase().replace(/\s+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "") === llaveCorrecta);
-                        let keyMapeo = keyFinal ? keyFinal.toLowerCase().replace(/\s+/g, '') : "otros";
-                        
-                        saldoCategoriasARS[keyMapeo] += monto;
-                        if (keyMapeo === "viatico" && notaGasto) notaViaticoARS = notaGasto;
+                    if (saldoCategoriasARS.hasOwnProperty(nombreCatLimpio)) {
+                        saldoCategoriasARS[nombreCatLimpio] += monto;
                     } else {
                         saldoCategoriasARS["otros"] += monto;
                     }
@@ -219,55 +185,31 @@
                 }
             });
 
-            // Renderizar Columna Chilena
+            // Renderizar CLP
             const contenedorCLP = document.getElementById('gastos_clp');
             catsFijasCLP.forEach(cat => {
-                let key = cat.toLowerCase().replace(/\s+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if (key === "viaticos") key = "viaticos"; 
-                let valor = saldoCategoriasCLP[key] || 0;
-                let subHtml = (key === "viaticos" && notaViaticoCLP) ? `<span class="gasto-nota">(${notaViaticoCLP})</span>` : '';
-                
-                contenedorCLP.innerHTML += `
-                    <div class="gasto-row">
-                        <div class="gasto-label-container">
-                            <span>${cat}</span>
-                            ${subHtml}
-                        </div>
-                        <span class="gasto-monto">$${valor.toLocaleString('es-CL')}</span>
-                    </div>`;
+                let valor = saldoCategoriasCLP[cat.toLowerCase().trim()];
+                contenedorCLP.innerHTML += `<div class="gasto-row"><span>${cat}</span><span class="gasto-monto">$${valor.toLocaleString('es-CL')}</span></div>`;
             });
 
-            // Renderizar Columna Argentina
+            // Renderizar ARS
             const contenedorARS = document.getElementById('gastos_ars');
             catsFijasARS.forEach(cat => {
-                let key = cat.toLowerCase().replace(/\s+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                let valor = saldoCategoriasARS[key] || 0;
-                let subHtml = (key === "viatico" && notaViaticoARS) ? `<span class="gasto-nota">(${notaViaticoARS})</span>` : '';
-                
-                contenedorARS.innerHTML += `
-                    <div class="gasto-row">
-                        <div class="gasto-label-container">
-                            <span>${cat}</span>
-                            ${subHtml}
-                        </div>
-                        <span class="gasto-monto">$${valor.toLocaleString('es-AR')}</span>
-                    </div>`;
+                let valor = saldoCategoriasARS[cat.toLowerCase().trim()];
+                contenedorARS.innerHTML += `<div class="gasto-row"><span>${cat}</span><span class="gasto-monto">$${valor.toLocaleString('es-AR')}</span></div>`;
             });
 
-            // Totales finales de gastos
             document.getElementById('total_gastos_clp').innerText = `$${totalGastosCLP.toLocaleString('es-CL')}`;
             document.getElementById('gastos_restar_clp').innerText = `$${totalGastosCLP.toLocaleString('es-CL')}`;
             document.getElementById('total_gastos_ars').innerText = `$${totalGastosARS.toLocaleString('es-AR')}`;
             document.getElementById('gastos_restar_ars').innerText = `$${totalGastosARS.toLocaleString('es-AR')}`;
 
-            // Totales de Anticipos
             const anticipoCLP = parseFloat(params.get('anti_clp')) || 0;
             const anticipoARS = parseFloat(params.get('anti_ars')) || 0;
 
             document.getElementById('anti_clp').innerText = `$${anticipoCLP.toLocaleString('es-CL')}`;
             document.getElementById('anti_ars').innerText = `$${anticipoARS.toLocaleString('es-AR')}`;
 
-            // Cálculo de saldos finales (Dinero Recibido - Gastos totales)
             let finalCLP = anticipoCLP - totalGastosCLP;
             let finalARS = anticipoARS - totalGastosARS;
 
