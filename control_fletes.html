@@ -47,12 +47,12 @@
         .gasto-label-container { display: flex; flex-direction: column; }
         .gasto-monto { font-weight: bold; width: 110px; text-align: right; }
         
-        /* Detalle de días / fechas para el viático */
+        /* Detalle exacto de la celda Notas */
         .gasto-nota {
             font-size: 12px !important;
             color: #555 !important;
             font-style: italic;
-            margin-top: 1px;
+            margin-top: 2px;
             font-weight: normal !important;
         }
 
@@ -145,32 +145,35 @@
         document.addEventListener("DOMContentLoaded", function() {
             const params = new URLSearchParams(window.location.search);
             
-            document.getElementById('nro_control').innerText = params.get('id') || '------';
+            // Sincronización del número de Detalle con la cabecera
+            const numeroDetalleUnico = params.get('detalle') || params.get('id') || '------';
+            document.getElementById('nro_control').innerText = numeroDetalleUnico;
+            document.getElementById('detalle').innerText = numeroDetalleUnico;
+
             document.getElementById('chofer').innerText = params.get('chofer') || '------';
             document.getElementById('patente_camion').innerText = params.get('patente') || '------';
             document.getElementById('patente_equipo').innerText = params.get('equipo') || '------';
-            document.getElementById('detalle').innerText = params.get('detalle') || '------';
             document.getElementById('fecha_salida').innerText = params.get('f_salida') || '------';
             document.getElementById('fecha_llegada').innerText = params.get('f_llegada') || '------';
 
-            // Listas ordenadas para renderizar la interfaz exactamente como tu diseño impreso
             const catsFijasCLP = ["Peajes", "Viáticos", "Pasajes", "Teléfono", "Impresión"];
             const catsFijasARS = ["Peajes", "Migración", "Aduana", "Viático", "Teléfono", "Sanidad", "Parqueadero", "Vulcanización", "Repuestos", "Fotocopia", "Lavado", "Otros"];
 
-            // Inicialización de acumuladores indexados en minúsculas limpias
             let saldoCLP = { peajes: 0, viaticos: 0, pasajes: 0, telefono: 0, impresion: 0 };
             let saldoARS = { peajes: 0, migracion: 0, aduana: 0, viatico: 0, telefono: 0, sanidad: 0, parqueadero: 0, vulcanizacion: 0, repuestos: 0, fotocopia: 0, lavado: 0, otros: 0 };
 
-            let notaViaticoCLP = "";
-            let notaViaticoARS = "";
+            // Aquí guardaremos la información de la celda de notas de forma íntegra
+            let textoNotasUnificado = "";
+            let notasRaw = params.get('g_not') || params.get('g_notas') || "";
+            
+            if (notasRaw) {
+                // Reemplazamos las barras separadoras por comas normales para reconstruir tu texto
+                textoNotasUnificado = notasRaw.replace(/\|/g, ", ").trim();
+            }
 
             const lasCategorias = params.get('g_cat') ? params.get('g_cat').split(',') : [];
             const losMontos = params.get('g_mon') ? params.get('g_mon').split(',') : [];
             const lasMonedas = params.get('g_curr') ? params.get('g_curr').split(',') : [];
-            
-            // Tolerancia bicameral: intenta jalar desde "g_not" o "g_notas" usando barra vertical como separador preventivo
-            let notasRaw = params.get('g_not') || params.get('g_notas') || "";
-            const lasNotas = notasRaw ? notasRaw.split('|') : [];
 
             let totalGastosCLP = 0;
             let totalGastosARS = 0;
@@ -178,16 +181,12 @@
             lasCategorias.forEach((cat, index) => {
                 let monto = parseFloat(losMontos[index]) || 0;
                 let moneda = lasMonedas[index] ? lasMonedas[index].toUpperCase().trim() : 'CLP';
-                let nota = lasNotas[index] ? lasNotas[index].trim() : "";
-                
-                // Normalizador para eliminar espacios, guiones y tildes
                 let catLimpia = cat.toLowerCase().replace(/[\s\.\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
                 if (moneda === 'CLP' || moneda === 'CHILE' || moneda === 'MONEDA NACIONAL') {
                     totalGastosCLP += monto;
                     if (catLimpia === "viatico" || catLimpia === "viaticos") {
                         saldoCLP.viaticos += monto;
-                        if(nota) notaViaticoCLP = nota;
                     } else if (catLimpia === "peaje" || catLimpia === "peajes") {
                         saldoCLP.peajes += monto;
                     } else if (catLimpia === "pasaje" || catLimpia === "pasajes") {
@@ -209,7 +208,6 @@
                         saldoARS.aduana += monto;
                     } else if (catLimpia === "viatico" || catLimpia === "viaticos") {
                         saldoARS.viatico += monto;
-                        if(nota) notaViaticoARS = nota;
                     } else if (catLimpia === "telefono" || catLimpia === "telefonos") {
                         saldoARS.telefono += monto;
                     } else if (catLimpia === "sanidad") {
@@ -230,12 +228,14 @@
                 }
             });
 
-            // Dibujar Columna CLP
+            // Renderizar Columna CLP
             const contenedorCLP = document.getElementById('gastos_clp');
             catsFijasCLP.forEach(cat => {
                 let keyNormalizada = cat.toLowerCase().replace(/[\s\.\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 let valor = saldoCLP[keyNormalizada] || 0;
-                let subHtml = (keyNormalizada === "viaticos" && notaViaticoCLP) ? `<span class="gasto-nota">(${notaViaticoCLP})</span>` : '';
+                
+                // Si la categoría actual es Viáticos e ingresaste texto en Notas, se muestra abajo
+                let subHtml = (keyNormalizada === "viaticos" && textoNotasUnificado) ? `<span class="gasto-nota">(${textoNotasUnificado})</span>` : '';
                 
                 contenedorCLP.innerHTML += `
                     <div class="gasto-row">
@@ -247,12 +247,14 @@
                     </div>`;
             });
 
-            // Dibujar Columna ARS
+            // Renderizar Columna ARS
             const contenedorARS = document.getElementById('gastos_ars');
             catsFijasARS.forEach(cat => {
                 let keyNormalizada = cat.toLowerCase().replace(/[\s\.\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 let valor = saldoARS[keyNormalizada] || 0;
-                let subHtml = (keyNormalizada === "viatico" && notaViaticoARS) ? `<span class="gasto-nota">(${notaViaticoARS})</span>` : '';
+                
+                // Si la categoría actual es Viático e ingresaste texto en Notas, se muestra abajo
+                let subHtml = (keyNormalizada === "viatico" && textoNotasUnificado) ? `<span class="gasto-nota">(${textoNotasUnificado})</span>` : '';
                 
                 contenedorARS.innerHTML += `
                     <div class="gasto-row">
