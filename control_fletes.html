@@ -145,7 +145,6 @@
         document.addEventListener("DOMContentLoaded", function() {
             const params = new URLSearchParams(window.location.search);
             
-            // Sincronización del número de Detalle con la cabecera
             const numeroDetalleUnico = params.get('detalle') || params.get('id') || '------';
             document.getElementById('nro_control').innerText = numeroDetalleUnico;
             document.getElementById('detalle').innerText = numeroDetalleUnico;
@@ -162,14 +161,12 @@
             let saldoCLP = { peajes: 0, viaticos: 0, pasajes: 0, telefono: 0, impresion: 0 };
             let saldoARS = { peajes: 0, migracion: 0, aduana: 0, viatico: 0, telefono: 0, sanidad: 0, parqueadero: 0, vulcanizacion: 0, repuestos: 0, fotocopia: 0, lavado: 0, otros: 0 };
 
-            // Aquí guardaremos la información de la celda de notas de forma íntegra
-            let textoNotasUnificado = "";
-            let notasRaw = params.get('g_not') || params.get('g_notas') || "";
+            // Captura de notas filtradas por separado e individualmente desde la URL
+            let notasRawCLP = params.get('g_not_clp') || "";
+            let notasRawARS = params.get('g_not_ars') || "";
             
-            if (notasRaw) {
-                // Reemplazamos las barras separadoras por comas normales para reconstruir tu texto
-                textoNotasUnificado = notasRaw.replace(/\|/g, ", ").trim();
-            }
+            let textoNotasCLP = notasRawCLP ? notasRawCLP.replace(/\|/g, ", ").trim() : "";
+            let textoNotasARS = notasRawARS ? notasRawARS.replace(/\|/g, ", ").trim() : "";
 
             const lasCategorias = params.get('g_cat') ? params.get('g_cat').split(',') : [];
             const losMontos = params.get('g_mon') ? params.get('g_mon').split(',') : [];
@@ -214,7 +211,7 @@
                         saldoARS.sanidad += monto;
                     } else if (catLimpia === "parqueadero" || catLimpia === "parkizadero" || catLimpia === "estacionamiento") {
                         saldoARS.parqueadero += monto;
-                    } else if (catLimpia === "vulcanizacion" || catLimpia === "gomereria" || catLimpia === "gomeria") {
+                    } else if (catLimpia === "vulcanizacion" || catLimpia === "gomereria" || catLinter === "gomeria") {
                         saldoARS.vulcanizacion += monto;
                     } else if (catLimpia === "repuesto" || catLimpia === "repuestos") {
                         saldoARS.repuestos += monto;
@@ -228,14 +225,12 @@
                 }
             });
 
-            // Renderizar Columna CLP
+            // Renderizar Columna CLP con sus notas exclusivas
             const contenedorCLP = document.getElementById('gastos_clp');
             catsFijasCLP.forEach(cat => {
                 let keyNormalizada = cat.toLowerCase().replace(/[\s\.\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 let valor = saldoCLP[keyNormalizada] || 0;
-                
-                // Si la categoría actual es Viáticos e ingresaste texto en Notas, se muestra abajo
-                let subHtml = (keyNormalizada === "viaticos" && textoNotasUnificado) ? `<span class="gasto-nota">(${textoNotasUnificado})</span>` : '';
+                let subHtml = (keyNormalizada === "viaticos" && textoNotasCLP) ? `<span class="gasto-nota">(${textoNotasCLP})</span>` : '';
                 
                 contenedorCLP.innerHTML += `
                     <div class="gasto-row">
@@ -247,14 +242,12 @@
                     </div>`;
             });
 
-            // Renderizar Columna ARS
+            // Renderizar Columna ARS con sus notas exclusivas
             const contenedorARS = document.getElementById('gastos_ars');
             catsFijasARS.forEach(cat => {
                 let keyNormalizada = cat.toLowerCase().replace(/[\s\.\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 let valor = saldoARS[keyNormalizada] || 0;
-                
-                // Si la categoría actual es Viático e ingresaste texto en Notas, se muestra abajo
-                let subHtml = (keyNormalizada === "viatico" && textoNotasUnificado) ? `<span class="gasto-nota">(${textoNotasUnificado})</span>` : '';
+                let subHtml = (keyNormalizada === "viatico" && textoNotasARS) ? `<span class="gasto-nota">(${textoNotasARS})</span>` : '';
                 
                 contenedorARS.innerHTML += `
                     <div class="gasto-row">
