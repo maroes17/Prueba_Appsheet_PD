@@ -100,7 +100,6 @@
         </div>
 
         <div class="columns-container">
-            
             <div>
                 <div class="column-title">Moneda Chilena</div>
                 <div id="gastos_clp"></div>
@@ -134,7 +133,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div class="signature-section">
@@ -147,7 +145,6 @@
         document.addEventListener("DOMContentLoaded", function() {
             const params = new URLSearchParams(window.location.search);
             
-            // Textos básicos desde la URL
             document.getElementById('nro_detalle_header').innerText = params.get('detalle') || '------';
             document.getElementById('nro_control').innerText = params.get('id') || '------';
             document.getElementById('chofer').innerText = params.get('chofer') || '------';
@@ -156,23 +153,20 @@
             document.getElementById('fecha_salida').innerText = params.get('f_salida') || '------';
             document.getElementById('fecha_llegada').innerText = params.get('f_llegada') || '------';
 
-            // Estructura fija preimpresa
             const catsFijasCLP = ["Peajes", "Viáticos", "Pasajes", "Teléfono", "Impresión"];
             const catsFijasARS = ["Peajes", "Migración", "Ag. Aduana", "Viático", "Teléfono", "Sanidad", "Parqueadero", "Vulcanización", "Otros"];
 
-            // Inicializar contenedores de sumas indexadas
             let saldoCLP = { peajes: 0, viaticos: 0, pasajes: 0, telefono: 0, impresion: 0 };
             let saldoARS = { peajes: 0, migracion: 0, agaduana: 0, viatico: 0, telefono: 0, sanidad: 0, parqueadero: 0, vulcanizacion: 0, otros: 0 };
 
-            // Variables para almacenar las notas de texto de los viáticos
             let notaViaticoCLP = "";
             let notaViaticoARS = "";
 
-            // Descomponer arrays desde URL
             const lasCategorias = params.get('g_cat') ? params.get('g_cat').split(',') : [];
             const losMontos = params.get('g_mon') ? params.get('g_mon').split(',') : [];
             const lasMonedas = params.get('g_curr') ? params.get('g_curr').split(',') : [];
-            const lasNotas = params.get('g_not') ? params.get('g_not').split(',') : [];
+            // Separamos usando el caracter "|" para proteger las comas internas de los textos
+            const lasNotas = params.get('g_not') ? params.get('g_not').split('|') : [];
 
             let totalGastosCLP = 0;
             let totalGastosARS = 0;
@@ -181,13 +175,10 @@
                 let monto = parseFloat(losMontos[index]) || 0;
                 let moneda = lasMonedas[index] ? lasMonedas[index].toUpperCase().trim() : 'CLP';
                 let nota = lasNotas[index] ? lasNotas[index].trim() : "";
-                
-                // Normalización de texto: remueve espacios, acentos y convierte a minúsculas
                 let catLimpia = cat.toLowerCase().replace(/\s+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
                 if (moneda === 'CLP' || moneda === 'CHILE' || moneda === 'MONEDA NACIONAL') {
                     totalGastosCLP += monto;
-                    // Redirecciones tolerantes a variaciones tipográficas
                     if (catLimpia === "viatico" || catLimpia === "viaticos") {
                         saldoCLP.viaticos += monto;
                         if(nota) notaViaticoCLP = nota;
@@ -200,12 +191,10 @@
                     } else if (catLimpia === "impresion" || catLimpia === "impresiones") {
                         saldoCLP.impresion += monto;
                     } else {
-                        // Desborde por si cae un imprevisto en CLP
                         saldoCLP.impresion += monto;
                     }
                 } else {
                     totalGastosARS += monto;
-                    // Redirecciones robustas para la columna argentina
                     if (catLimpia === "peaje" || catLimpia === "peajes") {
                         saldoARS.peajes += monto;
                     } else if (catLimpia === "migracion" || catLimpia === "migraciones") {
@@ -229,13 +218,11 @@
                 }
             });
 
-            // Renderizar de forma limpia la Moneda Chilena
+            // Renderizar Columna Chilena
             const contenedorCLP = document.getElementById('gastos_clp');
             catsFijasCLP.forEach(cat => {
                 let keyNormalizada = cat.toLowerCase().replace(/\s+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 let valor = saldoCLP[keyNormalizada] || 0;
-                
-                // Si la categoría es viáticos y contiene texto explicativo, lo acopla abajo
                 let subHtml = (keyNormalizada === "viaticos" && notaViaticoCLP) ? `<span class="gasto-nota">(${notaViaticoCLP})</span>` : '';
                 
                 contenedorCLP.innerHTML += `
@@ -248,12 +235,11 @@
                     </div>`;
             });
 
-            // Renderizar de forma limpia la Moneda Argentina
+            // Renderizar Columna Argentina
             const contenedorARS = document.getElementById('gastos_ars');
             catsFijasARS.forEach(cat => {
                 let keyNormalizada = cat.toLowerCase().replace(/\s+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 let valor = saldoARS[keyNormalizada] || 0;
-                
                 let subHtml = (keyNormalizada === "viatico" && notaViaticoARS) ? `<span class="gasto-nota">(${notaViaticoARS})</span>` : '';
                 
                 contenedorARS.innerHTML += `
@@ -266,20 +252,17 @@
                     </div>`;
             });
 
-            // Asignar totales numéricos formateados
             document.getElementById('total_gastos_clp').innerText = `$${totalGastosCLP.toLocaleString('es-CL')}`;
             document.getElementById('gastos_restar_clp').innerText = `$${totalGastosCLP.toLocaleString('es-CL')}`;
             document.getElementById('total_gastos_ars').innerText = `$${totalGastosARS.toLocaleString('es-AR')}`;
             document.getElementById('gastos_restar_ars').innerText = `$${totalGastosARS.toLocaleString('es-AR')}`;
 
-            // Cargar y plasmar anticipos
             const anticipoCLP = parseFloat(params.get('anti_clp')) || 0;
             const anticipoARS = parseFloat(params.get('anti_ars')) || 0;
 
             document.getElementById('anti_clp').innerText = `$${anticipoCLP.toLocaleString('es-CL')}`;
             document.getElementById('anti_ars').innerText = `$${anticipoARS.toLocaleString('es-AR')}`;
 
-            // Lógica final de saldos matemáticos
             let finalCLP = anticipoCLP - totalGastosCLP;
             let finalARS = anticipoARS - totalGastosARS;
 
