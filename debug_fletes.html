@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>DEBUG - Control de Fletes</title>
+    <style>
+        body { font-family: monospace; background: #1a1a2e; color: #eee; padding: 20px; }
+        h2 { color: #00d4ff; border-bottom: 2px solid #00d4ff; padding-bottom: 8px; }
+        .param-block { background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .param-name { color: #f0a500; font-weight: bold; margin-bottom: 6px; }
+        .param-value { background: #0d0d1a; padding: 10px; border-radius: 4px; word-break: break-all; white-space: pre-wrap; color: #7fff7f; }
+        .split-item { background: #222; border-left: 3px solid #00d4ff; padding: 4px 8px; margin: 3px 0; }
+        .idx { color: #888; margin-right: 8px; }
+        .warn { color: #ff6b6b; font-weight: bold; }
+        .ok   { color: #7fff7f; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #0f3460; color: #00d4ff; padding: 8px; text-align: left; }
+        td { padding: 6px 8px; border-bottom: 1px solid #333; }
+        tr:nth-child(even) td { background: #16213e; }
+    </style>
+</head>
+<body>
+<h2>🔍 DEBUG — Parámetros recibidos desde AppSheet</h2>
+
+<div id="output"></div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const out = document.getElementById('output');
+
+// ── 1. Todos los parámetros crudos ──────────────────────────────────────────
+let html = '<div class="param-block"><div class="param-name">📋 TODOS LOS PARÁMETROS (raw)</div>';
+if ([...params].length === 0) {
+    html += '<div class="param-value warn">⚠ No se recibió ningún parámetro. La URL no tiene datos.</div>';
+} else {
+    [...params].forEach(([k, v]) => {
+        html += `<div class="param-name" style="margin-top:8px">${k}</div><div class="param-value">${v || '<em style="color:#888">(vacío)</em>'}</div>`;
+    });
+}
+html += '</div>';
+
+// ── 2. Análisis de g_cat, g_mon, g_curr ────────────────────────────────────
+const rawCat  = params.get('g_cat')  || '';
+const rawMon  = params.get('g_mon')  || '';
+const rawCurr = params.get('g_curr') || '';
+
+const cats  = rawCat  ? rawCat.split(',')  : [];
+const monts = rawMon  ? rawMon.split(',')  : [];
+const currs = rawCurr ? rawCurr.split(',') : [];
+
+html += '<div class="param-block"><div class="param-name">📊 GASTOS — Desglose por índice</div>';
+const maxLen = Math.max(cats.length, monts.length, currs.length);
+
+if (maxLen === 0) {
+    html += '<div class="warn">⚠ Sin datos de gastos. Verificar que g_cat, g_mon y g_curr lleguen en la URL.</div>';
+} else {
+    html += `<p>Categorías: <strong>${cats.length}</strong> | Montos: <strong>${monts.length}</strong> | Monedas: <strong>${currs.length}</strong></p>`;
+    if (cats.length !== monts.length || cats.length !== currs.length) {
+        html += '<p class="warn">⚠ LOS ARRAYS TIENEN LONGITUDES DISTINTAS — esto causa desincronización.</p>';
+    }
+    html += '<table><tr><th>#</th><th>Categoría (raw)</th><th>Categoría (norm)</th><th>Monto (raw)</th><th>Monto (parsed)</th><th>Moneda (raw)</th><th>Moneda (norm)</th></tr>';
+    for (let i = 0; i < maxLen; i++) {
+        const c = cats[i]  || '—';
+        const m = monts[i] || '—';
+        const x = currs[i] || '—';
+        const cn = norm(c);
+        const mn = parseFloat(String(m).replace(',', '.'));
+        const xn = norm(x);
+        html += `<tr>
+            <td>${i}</td>
+            <td>${c}</td>
+            <td><em>${cn}</em></td>
+            <td>${m}</td>
+            <td>${isNaN(mn) ? '<span class="warn">NaN ⚠</span>' : mn}</td>
+            <td>${x}</td>
+            <td><em>${xn}</em></td>
+        </tr>`;
+    }
+    html += '</table>';
+}
+html += '</div>';
+
+// ── 3. Notas viáticos ───────────────────────────────────────────────────────
+html += '<div class="param-block"><div class="param-name">📝 NOTAS DE VIÁTICOS</div>';
+const nCLP = params.get('v_not_clp') || '';
+const nARS = params.get('v_not_ars') || '';
+html += `<div class="param-name" style="margin-top:6px">v_not_clp</div><div class="param-value">${nCLP || '<em style="color:#888">(vacío)</em>'}</div>`;
+html += `<div class="param-name" style="margin-top:6px">v_not_ars</div><div class="param-value">${nARS || '<em style="color:#888">(vacío)</em>'}</div>`;
+html += '</div>';
+
+// ── 4. Anticipos ────────────────────────────────────────────────────────────
+html += '<div class="param-block"><div class="param-name">💰 ANTICIPOS</div>';
+html += `<div class="param-name">anti_clp</div><div class="param-value">${params.get('anti_clp') || '(vacío)'}</div>`;
+html += `<div class="param-name" style="margin-top:6px">anti_ars</div><div class="param-value">${params.get('anti_ars') || '(vacío)'}</div>`;
+html += '</div>';
+
+// ── 5. URL completa ─────────────────────────────────────────────────────────
+html += '<div class="param-block"><div class="param-name">🔗 URL COMPLETA RECIBIDA</div>';
+html += `<div class="param-value">${window.location.href}</div></div>`;
+
+out.innerHTML = html;
+
+function norm(str) {
+    return String(str).trim().toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[\s\.\-_]+/g, '');
+}
+</script>
+</body>
+</html>
