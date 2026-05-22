@@ -1,30 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Control de Fletes - Romanesco</title>
-
     <style>
-        @page {
-            size: A4;
-            margin: 0;
-        }
-
+        @page { size: A4; margin: 0; }
         * {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             font-size: 15px !important;
             line-height: 1.3 !important;
             box-sizing: border-box;
             -webkit-print-color-adjust: exact;
         }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
-        }
-
+        body { margin: 0; padding: 0; background-color: #f0f0f0; }
+        
         .page {
             width: 210mm;
             min-height: 297mm;
@@ -34,766 +23,284 @@
             border: 1px solid #ccc;
         }
 
-        /* HEADER */
+        /* Encabezado */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+        .logo-section { display: flex; flex-direction: column; align-items: center; }
+        .logo-section img { height: 65px; width: auto; margin-bottom: 5px; }
+        .company-name { font-size: 22px !important; font-weight: bold !important; text-transform: uppercase; letter-spacing: 1px; }
+        .title-section { text-align: center; }
+        .main-title { font-size: 26px !important; font-weight: bold !important; letter-spacing: 1px; }
+        .doc-number { font-size: 20px !important; font-weight: bold !important; margin-top: 5px; color: #333; }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
+        /* Datos Generales */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 30px; margin-bottom: 25px; }
+        .info-cell { border-bottom: 1px solid #000; padding-bottom: 2px; display: flex; }
+        .label { font-weight: bold; margin-right: 5px; white-space: nowrap; }
+        .value { flex-grow: 1; text-align: left; }
 
-        .logo-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        /* Estructura Columnas Gastos */
+        .columns-container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 15px; }
+        .column-title { font-weight: bold; font-size: 16px !important; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 12px; text-transform: uppercase; }
 
-        .logo-section img {
-            height: 65px;
-            width: auto;
-            margin-bottom: 5px;
-        }
-
-        .company-name {
-            font-size: 22px !important;
-            font-weight: bold !important;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .title-section {
-            text-align: center;
-        }
-
-        .main-title {
-            font-size: 26px !important;
-            font-weight: bold !important;
-            letter-spacing: 1px;
-        }
-
-        .doc-number {
-            font-size: 20px !important;
-            font-weight: bold !important;
-            margin-top: 5px;
-            color: #333;
-        }
-
-        /* DATOS */
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px 30px;
-            margin-bottom: 25px;
-        }
-
-        .info-cell {
-            border-bottom: 1px solid #000;
-            padding-bottom: 2px;
-            display: flex;
-        }
-
-        .label {
-            font-weight: bold;
-            margin-right: 5px;
-            white-space: nowrap;
-        }
-
-        .value {
-            flex-grow: 1;
-            text-align: left;
-        }
-
-        /* COLUMNAS */
-
-        .columns-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin-top: 15px;
-        }
-
-        .column-title {
-            font-weight: bold;
-            font-size: 16px !important;
-            border-bottom: 2px solid #000;
-            padding-bottom: 5px;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-        }
-
-        /* GASTOS */
-
-        .gasto-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 9px;
-            border-bottom: 1px dotted #999;
-            padding-bottom: 3px;
-            align-items: flex-end;
-        }
-
-        .gasto-label-container {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .gasto-monto {
-            font-weight: bold;
-            width: 110px;
-            text-align: right;
-        }
-
-        /* NOTAS */
-
+        /* Filas de Categorías */
+        .gasto-row { display: flex; justify-content: space-between; margin-bottom: 9px; border-bottom: 1px dotted #999; padding-bottom: 3px; align-items: flex-end; }
+        .gasto-label-container { display: flex; flex-direction: column; width: 100%; }
+        .gasto-monto { font-weight: bold; width: 110px; text-align: right; }
+        
+        /* Estilo Minimalista y Profesional para Notas Digitales de Viáticos */
         .gasto-nota-digital {
-            font-size: 11px !important;
-            color: #555 !important;
+            font-size: 12px !important;
+            color: #444 !important;
             font-style: italic;
-            margin-top: 3px;
-            margin-bottom: 1px;
+            margin-top: 4px;
+            margin-bottom: 2px;
             font-weight: normal !important;
-            background-color: #f9f9f9;
-            padding: 2px 6px;
-            border-left: 2px solid #666;
-            width: 92%;
+            background-color: #f7f7f7;
+            padding: 3px 8px;
+            border-left: 3px solid #555;
+            width: 90%;
+            border-radius: 0 4px 4px 0;
         }
 
+        /* Línea punteada sutil si el viático no posee notas en AppSheet */
         .espacio-manual {
-            margin-top: 5px;
+            margin-top: 6px;
             margin-bottom: 2px;
             border-bottom: 1px dashed #ccc;
             height: 12px;
             width: 90%;
         }
 
-        /* TOTALES */
+        /* Contenedores de Totales y Saldos */
+        .total-box { border-top: 2px solid #000; margin-top: 12px; padding-top: 6px; display: flex; justify-content: space-between; font-weight: bold; background-color: #fcfcfc; }
+        .saldo-section { margin-top: 20px; padding: 10px; border: 1px solid #000; background-color: #f9f9f9; }
+        .saldo-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
 
-        .total-box {
-            border-top: 2px solid #000;
-            margin-top: 12px;
-            padding-top: 6px;
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            background-color: #fcfcfc;
-        }
-
-        .saldo-section {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #000;
-            background-color: #f9f9f9;
-        }
-
-        .saldo-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
-
-        /* FIRMAS */
-
-        .signature-section {
-            margin-top: 70px;
-            display: flex;
-            justify-content: space-around;
-            text-align: center;
-        }
-
-        .sig-box {
-            border-top: 1px solid #000;
-            width: 230px;
-            padding-top: 6px;
-            font-size: 13px !important;
-            font-weight: bold;
-        }
+        /* Firmas */
+        .signature-section { margin-top: 70px; display: flex; justify-content: space-around; text-align: center; }
+        .sig-box { border-top: 1px solid #000; width: 230px; padding-top: 6px; font-size: 13px !important; font-weight: bold; }
 
         @media print {
-            body {
-                background: none;
-            }
-
-            .page {
-                margin: 0;
-                border: none;
-            }
-
-            .btn-print {
-                display: none;
-            }
+            body { background: none; }
+            .page { margin: 0; border: none; }
+            .btn-print { display: none; }
         }
-
-        .btn-print {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 12px 24px;
-            background: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+        .btn-print { position: fixed; bottom: 20px; right: 20px; padding: 12px 24px; background: #27ae60; color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     </style>
 </head>
-
 <body>
 
-<button class="btn-print" onclick="window.print()">
-    Descargar / Imprimir PDF
-</button>
+    <button class="btn-print" onclick="window.print()">Descargar / Imprimir PDF</button>
 
-<div class="page">
-
-    <div class="header">
-
-        <div class="logo-section">
-            <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
-
-            <span class="company-name">
-                Romanesco
-            </span>
-
-            <span style="font-size:11px !important; letter-spacing:3px; font-weight:bold;">
-                TRANSPORTES
-            </span>
-        </div>
-
-        <div class="title-section">
-            <div class="main-title">
-                CONTROL DE FLETES
+    <div class="page">
+        <div class="header">
+            <div class="logo-section">
+                <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
+                <span class="company-name">Romanesco</span>
+                <span style="font-size: 11px !important; letter-spacing: 3px; font-weight: bold;">TRANSPORTES</span>
             </div>
-
-            <div class="doc-number">
-                N° <span id="nro_control"></span>
+            <div class="title-section">
+                <div class="main-title">CONTROL DE FLETES</div>
+                <div class="doc-number">N° <span id="nro_control"></span></div>
             </div>
         </div>
 
+        <div class="info-grid">
+            <div class="info-cell"><span class="label">Nombre Chofer:</span><span class="value" id="chofer"></span></div>
+            <div class="info-cell"><span class="label">Detalle:</span><span class="value" id="detalle"></span></div>
+            <div class="info-cell"><span class="label">Patente Camión:</span><span class="value" id="patente_camion"></span></div>
+            <div class="info-cell"><span class="label">Fecha Salida:</span><span class="value" id="fecha_salida"></span></div>
+            <div class="info-cell"><span class="label">Patente Equipo:</span><span class="value" id="patente_equipo"></span></div>
+            <div class="info-cell"><span class="label">Fecha Llegada:</span><span class="value" id="fecha_llegada"></span></div>
+        </div>
+
+        <div class="columns-container">
+            <div>
+                <div class="column-title">Moneda Chilena</div>
+                <div id="gastos_clp"></div>
+                <div class="total-box">
+                    <span>Total Gastos</span>
+                    <span id="total_gastos_clp">$0</span>
+                </div>
+                <div class="saldo-section">
+                    <div class="saldo-row"><span>Dinero Recibido:</span><span id="anti_clp">$0</span></div>
+                    <div class="saldo-row"><span>Total Gastos:</span><span id="gastos_restar_clp">$0</span></div>
+                    <div class="total-box" style="font-size: 16px !important; border-top: 1px solid #000;">
+                        <span id="label_saldo_clp">Saldo:</span>
+                        <span id="saldo_final_clp">$0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="column-title">Moneda Argentina</div>
+                <div id="gastos_ars"></div>
+                <div class="total-box">
+                    <span>Total Gastos</span>
+                    <span id="total_gastos_ars">$0</span>
+                </div>
+                <div class="saldo-section">
+                    <div class="saldo-row"><span>Dinero Recibido:</span><span id="anti_ars">$0</span></div>
+                    <div class="saldo-row"><span>Total Gastos:</span><span id="gastos_restar_ars">$0</span></div>
+                    <div class="total-box" style="font-size: 16px !important; border-top: 1px solid #000;">
+                        <span id="label_saldo_ars">Saldo:</span>
+                        <span id="saldo_final_ars">$0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="signature-section">
+            <div class="sig-box">Nombre y Firma Recibe Rendición</div>
+            <div class="sig-box">Firma Conductor Entregado Conforme</div>
+        </div>
     </div>
 
-    <div class="info-grid">
-
-        <div class="info-cell">
-            <span class="label">Nombre Chofer:</span>
-            <span class="value" id="chofer"></span>
-        </div>
-
-        <div class="info-cell">
-            <span class="label">Detalle:</span>
-            <span class="value" id="detalle"></span>
-        </div>
-
-        <div class="info-cell">
-            <span class="label">Patente Camión:</span>
-            <span class="value" id="patente_camion"></span>
-        </div>
-
-        <div class="info-cell">
-            <span class="label">Fecha Salida:</span>
-            <span class="value" id="fecha_salida"></span>
-        </div>
-
-        <div class="info-cell">
-            <span class="label">Patente Equipo:</span>
-            <span class="value" id="patente_equipo"></span>
-        </div>
-
-        <div class="info-cell">
-            <span class="label">Fecha Llegada:</span>
-            <span class="value" id="fecha_llegada"></span>
-        </div>
-
-    </div>
-
-    <div class="columns-container">
-
-        <!-- CLP -->
-
-        <div>
-
-            <div class="column-title">
-                Moneda Chilena
-            </div>
-
-            <div id="gastos_clp"></div>
-
-            <div class="total-box">
-                <span>Total Gastos</span>
-                <span id="total_gastos_clp">$0</span>
-            </div>
-
-            <div class="saldo-section">
-
-                <div class="saldo-row">
-                    <span>Dinero Recibido:</span>
-                    <span id="anti_clp">$0</span>
-                </div>
-
-                <div class="saldo-row">
-                    <span>Total Gastos:</span>
-                    <span id="gastos_restar_clp">$0</span>
-                </div>
-
-                <div class="total-box" style="font-size:16px !important; border-top:1px solid #000;">
-                    <span id="label_saldo_clp">Saldo:</span>
-                    <span id="saldo_final_clp">$0</span>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- ARS -->
-
-        <div>
-
-            <div class="column-title">
-                Moneda Argentina
-            </div>
-
-            <div id="gastos_ars"></div>
-
-            <div class="total-box">
-                <span>Total Gastos</span>
-                <span id="total_gastos_ars">$0</span>
-            </div>
-
-            <div class="saldo-section">
-
-                <div class="saldo-row">
-                    <span>Dinero Recibido:</span>
-                    <span id="anti_ars">$0</span>
-                </div>
-
-                <div class="saldo-row">
-                    <span>Total Gastos:</span>
-                    <span id="gastos_restar_ars">$0</span>
-                </div>
-
-                <div class="total-box" style="font-size:16px !important; border-top:1px solid #000;">
-                    <span id="label_saldo_ars">Saldo:</span>
-                    <span id="saldo_final_ars">$0</span>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="signature-section">
-
-        <div class="sig-box">
-            Nombre y Firma Recibe Rendición
-        </div>
-
-        <div class="sig-box">
-            Firma Conductor Entregado Conforme
-        </div>
-
-    </div>
-
-</div>
-
-<script>
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const params = new URLSearchParams(window.location.search);
-
-    const separador = "||";
-
-    // =========================
-    // OBTENER DATOS URL
-    // =========================
-
-    const categorias = params.get('g_cat')
-        ? params.get('g_cat').split(separador)
-        : [];
-
-    const montos = params.get('g_mon')
-        ? params.get('g_mon').split(separador)
-        : [];
-
-    const monedas = params.get('g_curr')
-        ? params.get('g_curr').split(separador)
-        : [];
-
-    const notas = params.get('g_not')
-        ? params.get('g_not').split(separador)
-        : [];
-
-    console.log("Categorias:", categorias);
-    console.log("Montos:", montos);
-    console.log("Monedas:", monedas);
-    console.log("Notas:", notas);
-
-    // =========================
-    // DATOS CABECERA
-    // =========================
-
-    const numeroDetalleUnico =
-        params.get('detalle') ||
-        params.get('id') ||
-        '------';
-
-    document.getElementById('nro_control').innerText =
-        numeroDetalleUnico;
-
-    document.getElementById('detalle').innerText =
-        numeroDetalleUnico;
-
-    document.getElementById('chofer').innerText =
-        params.get('chofer') || '------';
-
-    document.getElementById('patente_camion').innerText =
-        params.get('patente') || '------';
-
-    document.getElementById('patente_equipo').innerText =
-        params.get('equipo') || '------';
-
-    document.getElementById('fecha_salida').innerText =
-        params.get('f_salida') || '------';
-
-    document.getElementById('fecha_llegada').innerText =
-        params.get('f_llegada') || '------';
-
-    // =========================
-    // CATEGORIAS
-    // =========================
-
-    const catsFijasCLP = [
-        "Peajes",
-        "Viáticos",
-        "Pasajes",
-        "Teléfono",
-        "Impresión",
-        "Otros"
-    ];
-
-    const catsFijasARS = [
-        "Peajes",
-        "Migración",
-        "Aduana",
-        "Viático",
-        "Teléfono",
-        "Sanidad",
-        "Parqueadero",
-        "Vulcanización",
-        "Repuestos",
-        "Fotocopia",
-        "Lavado",
-        "Otros"
-    ];
-
-    // =========================
-    // ESTRUCTURAS
-    // =========================
-
-    let gastosCLP = {};
-    let gastosARS = {};
-
-    let totalGastosCLP = 0;
-    let totalGastosARS = 0;
-
-    // =========================
-    // RECORRER GASTOS
-    // =========================
-
-    categorias.forEach((categoria, index) => {
-
-        const categoriaKey =
-            normalizar(categoria);
-
-        // =====================
-        // LIMPIAR MONTO
-        // =====================
-
-        const montoTexto =
-            montos[index]
-            ? montos[index].toString()
-            : "0";
-
-        const monto =
-            Number(
-                montoTexto
-                    .replace(/\./g, '')
-                    .replace(',', '.')
-                    .replace(/[^\d.-]/g, '')
-            ) || 0;
-
-        // =====================
-        // LIMPIAR MONEDA
-        // =====================
-
-        const monedaOriginal =
-            monedas[index]
-            ? monedas[index].toString().trim().toUpperCase()
-            : "CLP";
-
-        let moneda = "CLP";
-
-        if (
-            monedaOriginal.includes("ARS") ||
-            monedaOriginal.includes("ARG")
-        ) {
-            moneda = "ARS";
-        }
-
-        // =====================
-        // NOTAS
-        // =====================
-
-        const nota =
-            notas[index]
-            ? notas[index].trim()
-            : "";
-
-        // =====================
-        // CLP
-        // =====================
-
-        if (moneda === "CLP") {
-
-            if (!gastosCLP[categoriaKey]) {
-
-                gastosCLP[categoriaKey] = {
-                    total: 0,
-                    notas: []
-                };
-            }
-
-            gastosCLP[categoriaKey].total += monto;
-
-            if (nota) {
-                gastosCLP[categoriaKey].notas.push(nota);
-            }
-
-            totalGastosCLP += monto;
-        }
-
-        // =====================
-        // ARS
-        // =====================
-
-        else {
-
-            if (!gastosARS[categoriaKey]) {
-
-                gastosARS[categoriaKey] = {
-                    total: 0,
-                    notas: []
-                };
-            }
-
-            gastosARS[categoriaKey].total += monto;
-
-            if (nota) {
-                gastosARS[categoriaKey].notas.push(nota);
-            }
-
-            totalGastosARS += monto;
-        }
-
-    });
-
-    // =========================
-    // RENDER CLP
-    // =========================
-
-    const contenedorCLP =
-        document.getElementById('gastos_clp');
-
-    catsFijasCLP.forEach(cat => {
-
-        const key =
-            normalizar(cat);
-
-        const gasto =
-            gastosCLP[key] || {
-                total: 0,
-                notas: []
-            };
-
-        let notasHtml = '';
-
-        if (gasto.notas.length > 0) {
-
-            notasHtml = gasto.notas
-                .map(nota =>
-                    `<div class="gasto-nota-digital">${nota}</div>`
-                )
-                .join('');
-
-        } else {
-
-            notasHtml =
-                `<div class="espacio-manual"></div>`;
-        }
-
-        contenedorCLP.innerHTML += `
-            <div class="gasto-row">
-
-                <div class="gasto-label-container">
-
-                    <span>${cat}</span>
-
-                    ${notasHtml}
-
-                </div>
-
-                <span class="gasto-monto">
-                    $${gasto.total.toLocaleString('es-CL')}
-                </span>
-
-            </div>
-        `;
-    });
-
-    // =========================
-    // RENDER ARS
-    // =========================
-
-    const contenedorARS =
-        document.getElementById('gastos_ars');
-
-    catsFijasARS.forEach(cat => {
-
-        const key =
-            normalizar(cat);
-
-        const gasto =
-            gastosARS[key] || {
-                total: 0,
-                notas: []
-            };
-
-        let notasHtml = '';
-
-        if (gasto.notas.length > 0) {
-
-            notasHtml = gasto.notas
-                .map(nota =>
-                    `<div class="gasto-nota-digital">${nota}</div>`
-                )
-                .join('');
-
-        } else {
-
-            notasHtml =
-                `<div class="espacio-manual"></div>`;
-        }
-
-        contenedorARS.innerHTML += `
-            <div class="gasto-row">
-
-                <div class="gasto-label-container">
-
-                    <span>${cat}</span>
-
-                    ${notasHtml}
-
-                </div>
-
-                <span class="gasto-monto">
-                    $${gasto.total.toLocaleString('es-AR')}
-                </span>
-
-            </div>
-        `;
-    });
-
-    // =========================
-    // TOTALES
-    // =========================
-
-    document.getElementById('total_gastos_clp').innerText =
-        `$${totalGastosCLP.toLocaleString('es-CL')}`;
-
-    document.getElementById('gastos_restar_clp').innerText =
-        `$${totalGastosCLP.toLocaleString('es-CL')}`;
-
-    document.getElementById('total_gastos_ars').innerText =
-        `$${totalGastosARS.toLocaleString('es-AR')}`;
-
-    document.getElementById('gastos_restar_ars').innerText =
-        `$${totalGastosARS.toLocaleString('es-AR')}`;
-
-    // =========================
-    // ANTICIPOS
-    // =========================
-
-    const anticipoCLP =
-        parseFloat(
-            (params.get('anti_clp') || "0")
-            .replace(/\./g, '')
-            .replace(',', '.')
-        ) || 0;
-
-    const anticipoARS =
-        parseFloat(
-            (params.get('anti_ars') || "0")
-            .replace(/\./g, '')
-            .replace(',', '.')
-        ) || 0;
-
-    document.getElementById('anti_clp').innerText =
-        `$${anticipoCLP.toLocaleString('es-CL')}`;
-
-    document.getElementById('anti_ars').innerText =
-        `$${anticipoARS.toLocaleString('es-AR')}`;
-
-    // =========================
-    // SALDOS
-    // =========================
-
-    const finalCLP =
-        anticipoCLP - totalGastosCLP;
-
-    const finalARS =
-        anticipoARS - totalGastosARS;
-
-    document.getElementById('saldo_final_clp').innerText =
-        `$${Math.abs(finalCLP).toLocaleString('es-CL')}`;
-
-    document.getElementById('saldo_final_ars').innerText =
-        `$${Math.abs(finalARS).toLocaleString('es-AR')}`;
-
-    document.getElementById('label_saldo_clp').innerText =
-        finalCLP >= 0
-        ? "A Favor:"
-        : "En Contra:";
-
-    document.getElementById('label_saldo_ars').innerText =
-        finalARS >= 0
-        ? "A Favor:"
-        : "En Contra:";
-});
-
-// =========================
-// NORMALIZAR
-// =========================
-
-function normalizar(texto) {
-
-    return texto
-        .toString()
-        .toLowerCase()
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[\s\.\-_]+/g, "");
-}
-
-</script>
-
-
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const params = new URLSearchParams(window.location.search);
+            
+            const numeroDetalleUnico = params.get('detalle') || params.get('id') || '------';
+            document.getElementById('nro_control').innerText = numeroDetalleUnico;
+            document.getElementById('detalle').innerText = numeroDetalleUnico;
+
+            document.getElementById('chofer').innerText = params.get('chofer') || '------';
+            document.getElementById('patente_camion').innerText = params.get('patente') || '------';
+            document.getElementById('patente_equipo').innerText = params.get('equipo') || '------';
+            document.getElementById('fecha_salida').innerText = params.get('f_salida') || '------';
+            document.getElementById('fecha_llegada').innerText = params.get('f_llegada') || '------';
+
+            const catsFijasCLP = ["Peajes", "Viáticos", "Pasajes", "Teléfono", "Impresión"];
+            const catsFijasARS = ["Peajes", "Migración", "Aduana", "Viático", "Teléfono", "Sanidad", "Parqueadero", "Vulcanización", "Repuestos", "Fotocopia", "Lavado", "Otros"];
+
+            let saldoCLP = { peajes: 0, viaticos: 0, pasajes: 0, telefono: 0, impresion: 0 };
+            let saldoARS = { peajes: 0, migracion: 0, aduana: 0, viatico: 0, telefono: 0, sanidad: 0, parqueadero: 0, vulcanizacion: 0, repuestos: 0, fotocopia: 0, lavado: 0, otros: 0 };
+
+            // Captura aislada y directa de las notas de viáticos desde la URL
+            let notaViaticoCLP = params.get('v_not_clp') ? params.get('v_not_clp').trim() : "";
+            let notaViaticoARS = params.get('v_not_ars') ? params.get('v_not_ars').trim() : "";
+
+            const lasCategorias = params.get('g_cat') ? params.get('g_cat').split(',') : [];
+            const losMontos = params.get('g_mon') ? params.get('g_mon').split(',') : [];
+            const lasMonedas = params.get('g_curr') ? params.get('g_curr').split(',') : [];
+
+            let totalGastosCLP = 0;
+            let totalGastosARS = 0;
+
+            lasCategorias.forEach((cat, index) => {
+                let monto = parseFloat(losMontos[index]) || 0;
+                let moneda = lasMonedas[index] ? lasMonedas[index].toUpperCase().trim() : 'CLP';
+                let catLimpia = cat.toLowerCase().replace(/[\s\.\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+                if (moneda === 'CLP' || moneda === 'CHILE' || moneda === 'MONEDA NACIONAL') {
+                    totalGastosCLP += monto;
+                    if (catLimpia === "viatico" || catLimpia === "viaticos") {
+                        saldoCLP.viaticos += monto;
+                    } else if (catLimpia === "peaje" || catLimpia === "peajes") {
+                        saldoCLP.peajes += monto;
+                    } else if (catLimpia === "pasaje" || catLimpia === "pasajes") {
+                        saldoCLP.pasajes += monto;
+                    } else if (catLimpia === "telefono" || catLimpia === "telefonos") {
+                        saldoCLP.telefono += monto;
+                    } else if (catLimpia === "impresion" || catLimpia === "impresiones") {
+                        saldoCLP.impresion += monto;
+                    } else {
+                        saldoCLP.impresion += monto;
+                    }
+                } else {
+                    totalGastosARS += monto;
+                    if (catLimpia === "peaje" || catLimpia === "peajes") {
+                        saldoARS.peajes += monto;
+                    } else if (catLimpia === "migracion" || catLimpia === "migraciones") {
+                        saldoARS.migracion += monto;
+                    } else if (catLimpia === "agaduana" || catLimpia === "agaduanas" || catLimpia === "aduana" || catLimpia === "aduanas") {
+                        saldoARS.aduana += monto;
+                    } else if (catLimpia === "viatico" || catLimpia === "viaticos") {
+                        saldoARS.viatico += monto;
+                    } else if (catLimpia === "telefono" || catLimpia === "telefonos") {
+                        saldoARS.telefono += monto;
+                    } else if (catLimpia === "sanidad") {
+                        saldoARS.sanidad += monto;
+                    } else if (catLimpia === "parqueadero" || catLimpia === "parkizadero" || catLimpia === "estacionamiento") {
+                        saldoARS.parqueadero += monto; // Corrección de variable crítica aplicada
+                    } else if (catLimpia === "vulcanizacion" || catLimpia === "gomereria" || catLimpia === "gomeria") {
+                        saldoARS.vulcanizacion += monto;
+                    } else if (catLimpia === "repuesto" || catLimpia === "repuestos") {
+                        saldoARS.repuestos += monto;
+                    } else if (catLimpia === "fotocopia" || catLimpia === "fotocopias") {
+                        saldoARS.fotocopia += monto;
+                    } else if (catLimpia === "lavado" || catLimpia === "lavados") {
+                        saldoARS.lavado += monto;
+                    } else {
+                        saldoARS.otros += monto;
+                    }
+                }
+            });
+
+            // Renderizar Columna CLP
+            const contenedorCLP = document.getElementById('gastos_clp');
+            contenedorCLP.innerHTML = "";
+            catsFijasCLP.forEach(cat => {
+                let keyNormalizada = cat.toLowerCase().replace(/[\s\.\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                let valor = saldoCLP[keyNormalizada] || 0;
+                
+                let subHtml = '';
+                if (keyNormalizada === "viaticos") {
+                    subHtml = notaViaticoCLP ? `<div class="gasto-nota-digital">${notaViaticoCLP}</div>` : `<div class="espacio-manual"></div>`;
+                }
+                
+                contenedorCLP.innerHTML += `
+                    <div class="gasto-row">
+                        <div class="gasto-label-container">
+                            <span>${cat}</span>
+                            ${subHtml}
+                        </div>
+                        <span class="gasto-monto">$${valor.toLocaleString('es-CL')}</span>
+                    </div>`;
+            });
+
+            // Renderizar Columna ARS
+            const contenedorARS = document.getElementById('gastos_ars');
+            contenedorARS.innerHTML = "";
+            catsFijasARS.forEach(cat => {
+                let keyNormalizada = cat.toLowerCase().replace(/[\s\.\-_]+/g, '').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                let valor = saldoARS[keyNormalizada] || 0;
+                
+                let subHtml = '';
+                if (keyNormalizada === "viatico") {
+                    subHtml = notaViaticoARS ? `<div class="gasto-nota-digital">${notaViaticoARS}</div>` : `<div class="espacio-manual"></div>`;
+                }
+                
+                contenedorARS.innerHTML += `
+                    <div class="gasto-row">
+                        <div class="gasto-label-container">
+                            <span>${cat}</span>
+                            ${subHtml}
+                        </div>
+                        <span class="gasto-monto">$${valor.toLocaleString('es-AR')}</span>
+                    </div>`;
+            });
+
+            document.getElementById('total_gastos_clp').innerText = `$${totalGastosCLP.toLocaleString('es-CL')}`;
+            document.getElementById('gastos_restar_clp').innerText = `$${totalGastosCLP.toLocaleString('es-CL')}`;
+            document.getElementById('total_gastos_ars').innerText = `$${totalGastosARS.toLocaleString('es-AR')}`;
+            document.getElementById('gastos_restar_ars').innerText = `$${totalGastosARS.toLocaleString('es-AR')}`;
+
+            const anticipoCLP = parseFloat(params.get('anti_clp')) || 0;
+            const anticipoARS = parseFloat(params.get('anti_ars')) || 0;
+
+            document.getElementById('anti_clp').innerText = `$${anticipoCLP.toLocaleString('es-CL')}`;
+            document.getElementById('anti_ars').innerText = `$${anticipoARS.toLocaleString('es-AR')}`;
+
+            let finalCLP = anticipoCLP - totalGastosCLP;
+            let finalARS = anticipoARS - totalGastosARS;
+
+            document.getElementById('saldo_final_clp').innerText = `$${Math.abs(finalCLP).toLocaleString('es-CL')}`;
+            document.getElementById('label_saldo_clp').innerText = finalCLP >= 0 ? "A Favor:" : "En Contra:";
+            
+            document.getElementById('saldo_final_ars').innerText = `$${Math.abs(finalARS).toLocaleString('es-AR')}`;
+            document.getElementById('label_saldo_ars').innerText = finalARS >= 0 ? "A Favor:" : "En Contra:";
+        });
+    </script>
 </body>
 </html>
