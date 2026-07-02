@@ -152,14 +152,12 @@
     <script>
     document.addEventListener("DOMContentLoaded", function () {
 
-        /* ── Normalización: elimina tildes, espacios y pasa a minúsculas ── */
         function norm(str) {
             return String(str).trim().toLowerCase()
                 .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                 .replace(/[\s\.\-_]+/g, "");
         }
 
-        /* ── Limpia llaves { } que AppSheet agrega en listas vacías ── */
         function limpiarNota(texto) {
             if (!texto) return "";
             return texto.trim()
@@ -167,63 +165,52 @@
                 .replace(/^,\s*/, "").trim();
         }
 
-        /* ── Parámetros URL ── */
         const params = new URLSearchParams(window.location.search);
 
-        document.getElementById("nro_control").innerText    = params.get("detalle")  || "------";
-        document.getElementById("detalle").innerText        = params.get("detalle")  || "------";
-        document.getElementById("chofer").innerText         = params.get("chofer")   || "------";
-        document.getElementById("patente_camion").innerText = params.get("patente")  || "------";
-        document.getElementById("patente_equipo").innerText = params.get("equipo")   || "------";
-        document.getElementById("fecha_salida").innerText   = params.get("f_salida") || "------";
-        document.getElementById("fecha_llegada").innerText  = params.get("f_llegada")|| "------";
+        document.getElementById("nro_control").innerText    = params.get("detalle")   || "------";
+        document.getElementById("detalle").innerText        = params.get("detalle")   || "------";
+        document.getElementById("chofer").innerText         = params.get("chofer")    || "------";
+        document.getElementById("patente_camion").innerText = params.get("patente")   || "------";
+        document.getElementById("patente_equipo").innerText = params.get("equipo")    || "------";
+        document.getElementById("fecha_salida").innerText   = params.get("f_salida")  || "------";
+        document.getElementById("fecha_llegada").innerText  = params.get("f_llegada") || "------";
 
-        /* ─────────────────────────────────────────────────────────────────
-           DEFINICIÓN DE CATEGORÍAS
-           Cada entrada: [etiqueta visible, clave normalizada, recibe nota]
-           
-           "recibe nota" = true → muestra bloque de nota o espacio manual
-        ───────────────────────────────────────────────────────────────── */
+        /* ── CAMBIO 1: clave "otros_clp" en CLP para no colisionar con "otros" de ARS ── */
         const catsCLP = [
             ["Peajes",    "peajes",    false],
-            ["Viáticos",  "viaticos",  true ],   // nota: v_not_clp
+            ["Viáticos",  "viaticos",  true ],
             ["Pasajes",   "pasajes",   false],
             ["Teléfono",  "telefono",  false],
             ["Impresión", "impresion", false],
-            ["Otros", "otros", true ]
+            ["Otros",     "otros_clp", true ],   // ← clave única para CLP
         ];
 
         const catsARS = [
-            ["Peajes",        "peajes",       false],
-            ["Migración",     "migracion",    false],
-            ["Aduana",        "aduana",       false],
-            ["Viático",       "viatico",      true ],   // nota: v_not_ars
-            ["Teléfono",      "telefono",     false],
-            ["Sanidad",       "sanidad",      false],
-            ["Parqueadero",   "parqueadero",  false],
-            ["Vulcanización", "vulcanizacion",false],
-            ["Repuestos",     "repuestos",    false],
-            ["Fotocopia",     "fotocopia",    false],
-            ["Lavado",        "lavado",       false],
-            ["Otros",         "otros",        true ],   // nota: o_not_ars  ← NUEVO
+            ["Peajes",        "peajes",        false],
+            ["Migración",     "migracion",     false],
+            ["Aduana",        "aduana",        false],
+            ["Viático",       "viatico",       true ],
+            ["Teléfono",      "telefono",      false],
+            ["Sanidad",       "sanidad",       false],
+            ["Parqueadero",   "parqueadero",   false],
+            ["Vulcanización", "vulcanizacion", false],
+            ["Repuestos",     "repuestos",     false],
+            ["Fotocopia",     "fotocopia",     false],
+            ["Lavado",        "lavado",        false],
+            ["Otros",         "otros_ars",     true ],  // ← clave única para ARS
         ];
 
-        /* ── Acumuladores ── */
         const saldoCLP = {};
         catsCLP.forEach(([,k]) => { saldoCLP[k] = 0; });
 
         const saldoARS = {};
         catsARS.forEach(([,k]) => { saldoARS[k] = 0; });
 
-        /* ── Monedas reconocidas como CLP ── */
         const monedasCLPnorm = new Set([
             norm("CLP"), norm("CHILE"), norm("MONEDA NACIONAL"),
             norm("PESO"), norm("PESO CHILENO"),
         ]);
 
-        /* ─────────────────────────────────────────────────────────────────
-           PROCESAMIENTO DE GASTOS
-        ───────────────────────────────────────────────────────────────── */
         const cats  = (params.get("g_cat")  || "").split(",").filter(Boolean);
         const monts = (params.get("g_mon")  || "").split(",").filter(Boolean);
         const currs = (params.get("g_curr") || "").split(",").filter(Boolean);
@@ -241,43 +228,39 @@
                 totalGastosCLP += monto;
                 let asignado = false;
                 for (const [, clave] of catsCLP) {
-                    if (catNorm === clave || catNorm.startsWith(clave) || clave.startsWith(catNorm)) {
+                    /* ── CAMBIO 2: comparar contra "otros" normalizado para mapear a "otros_clp" ── */
+                    const claveBase = clave.replace("_clp", "").replace("_ars", "");
+                    if (catNorm === claveBase || catNorm.startsWith(claveBase) || claveBase.startsWith(catNorm)) {
                         saldoCLP[clave] += monto;
                         asignado = true;
                         break;
                     }
                 }
-                if (!asignado) saldoCLP["impresion"] += monto;
+                if (!asignado) saldoCLP["otros_clp"] += monto;  // fallback → Otros CLP
 
             } else {
                 totalGastosARS += monto;
                 let asignado = false;
                 for (const [, clave] of catsARS) {
-                    if (catNorm === clave || catNorm.startsWith(clave) || clave.startsWith(catNorm)) {
+                    const claveBase = clave.replace("_clp", "").replace("_ars", "");
+                    if (catNorm === claveBase || catNorm.startsWith(claveBase) || claveBase.startsWith(catNorm)) {
                         saldoARS[clave] += monto;
                         asignado = true;
                         break;
                     }
                 }
-                if (!asignado) saldoARS["otros"] += monto;
+                if (!asignado) saldoARS["otros_ars"] += monto;  // fallback → Otros ARS
             }
         });
 
-        /* ─────────────────────────────────────────────────────────────────
-           NOTAS
-           v_not_clp → Viáticos CLP
-           v_not_ars → Viático  ARS
-           o_not_ars → Otros    ARS  ← NUEVO
-        ───────────────────────────────────────────────────────────────── */
+        /* ── CAMBIO 3: notas con claves separadas para CLP y ARS ── */
         const notas = {
-            "viaticos": limpiarNota(params.get("v_not_clp") || ""),
-            "viatico":  limpiarNota(params.get("v_not_ars") || ""),
-            "otros":    limpiarNota(params.get("o_not_ars") || ""),
+            "viaticos":  limpiarNota(params.get("v_not_clp") || ""),
+            "viatico":   limpiarNota(params.get("v_not_ars") || ""),
+            "otros_clp": limpiarNota(params.get("o_not_clp") || ""),  // ← NUEVO
+            "otros_ars": limpiarNota(params.get("o_not_ars") || ""),
         };
 
-        /* ─────────────────────────────────────────────────────────────────
-           RENDERIZADO DE FILAS
-        ───────────────────────────────────────────────────────────────── */
         function renderizarFilas(contenedorId, categorias, saldo, locale) {
             const contenedor = document.getElementById(contenedorId);
             contenedor.innerHTML = "";
@@ -307,7 +290,6 @@
         renderizarFilas("gastos_clp", catsCLP, saldoCLP, "es-CL");
         renderizarFilas("gastos_ars", catsARS, saldoARS, "es-AR");
 
-        /* ── Totales y saldos ── */
         const fmt = (n, loc) => `$${n.toLocaleString(loc, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
         const anticipoCLP = parseFloat(params.get("anti_clp") || "0") || 0;
