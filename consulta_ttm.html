@@ -30,6 +30,15 @@
 
         .form-section { padding:20px; border-bottom:1px solid #eee; }
         label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:6px; font-weight:bold; }
+
+        /* Tabs Tractocamión / Genset */
+        .tipo-equipo-tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .tab-equipo {
+            padding:12px 10px; border:1.5px solid #ddd; border-radius:8px;
+            background:#fafafa; color:#666; font-size:13px; font-weight:bold;
+            cursor:pointer; transition:all 0.2s; text-align:center;
+        }
+        .tab-equipo.active { border-color:#1a1a2e; background:#1a1a2e; color:white; }
         .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
         .form-group { display:flex; flex-direction:column; }
         .form-group.full { grid-column:1/-1; }
@@ -171,9 +180,23 @@
 
     <!-- Formulario de consulta -->
     <div class="form-section">
-        <div class="form-row">
+
+        <!-- Selector Tractocamión / Genset -->
+        <div style="margin-bottom:4px;">
+            <label>Tipo de equipo</label>
+        </div>
+        <div class="tipo-equipo-tabs">
+            <button type="button" class="tab-equipo active" id="tab-tracto" onclick="seleccionarTipoEquipo('tracto')">
+                🚛 Tractocamión
+            </button>
+            <button type="button" class="tab-equipo" id="tab-genset" onclick="seleccionarTipoEquipo('genset')">
+                ❄️ Genset (Semirremolque)
+            </button>
+        </div>
+
+        <div class="form-row" style="margin-top:14px;">
             <div class="form-group">
-                <label>Patente</label>
+                <label id="label-patente">Patente</label>
                 <input type="text" id="patente" placeholder="Ej: FXRX64">
             </div>
             <div class="form-group">
@@ -201,9 +224,17 @@
             ＋ Agregar tramo
         </button>
 
-        <div style="margin-top:16px;">
+        <!-- Solo Tractocamión: botón de consulta TTM -->
+        <div style="margin-top:16px;" id="bloque-btn-consultar">
             <button class="btn-consultar" id="btn-consultar" onclick="consultarTTM()">
                 Consultar estanque
+            </button>
+        </div>
+
+        <!-- Solo Genset: botón para ir directo a la carga -->
+        <div style="margin-top:16px; display:none;" id="bloque-btn-genset">
+            <button class="btn-consultar" onclick="irACargaGenset()">
+                Continuar → Registrar carga
             </button>
         </div>
     </div>
@@ -251,6 +282,12 @@
     <!-- Sección carga de combustible -->
     <div class="carga-section" id="carga-section">
         <div class="carga-titulo">Registrar carga de combustible</div>
+
+        <!-- Solo Genset: horómetro (horas de motor), reemplaza al odómetro -->
+        <div class="form-group full" id="bloque-horometro" style="display:none; margin-bottom:12px;">
+            <label>Horómetro (horas de motor — opcional)</label>
+            <input type="number" id="horometro-input" placeholder="Ej: 4520" min="0" step="0.1">
+        </div>
 
         <div class="form-row">
             <div class="form-group">
@@ -355,13 +392,67 @@
     let servicentros = ["Copa Petróleo", "YPF", "Shell", "Petrobras", "COPEC", "Otro"];
 
     let datosTTM = null;
+    let tipoEquipo = "tracto";   // 'tracto' o 'genset'
+    let patenteTracto = "";      // patente del tractocamión (desde AppSheet)
+    let patenteGenset = "";      // patente del semirremolque (desde AppSheet)
+
+    // ── Selector Tractocamión / Genset ──────────────────────────────────
+    function seleccionarTipoEquipo(tipo) {
+        tipoEquipo = tipo;
+
+        document.getElementById("tab-tracto").classList.toggle("active", tipo === "tracto");
+        document.getElementById("tab-genset").classList.toggle("active", tipo === "genset");
+
+        const esGenset = tipo === "genset";
+
+        // Mostrar/ocultar botones según el flujo
+        document.getElementById("bloque-btn-consultar").style.display = esGenset ? "none" : "block";
+        document.getElementById("bloque-btn-genset").style.display    = esGenset ? "block" : "none";
+
+        // Placeholder y label de patente
+        document.getElementById("label-patente").textContent = esGenset ? "Patente Semirremolque" : "Patente";
+        document.getElementById("patente").placeholder = esGenset ? "Ej: HGJD-39" : "Ej: FXRX64";
+
+        // Autocompletar con la patente correspondiente que llegó de AppSheet
+        const patenteInput = document.getElementById("patente");
+        const nuevaPatente = esGenset ? patenteGenset : patenteTracto;
+        patenteInput.value = nuevaPatente;
+        document.getElementById("show-patente").textContent = nuevaPatente || "——";
+
+        // Mostrar/ocultar horómetro
+        document.getElementById("bloque-horometro").style.display = esGenset ? "block" : "none";
+    }
+
+    // ── Genset: salta la consulta TTM y va directo a cargar ────────────
+    function irACargaGenset() {
+        const patente = document.getElementById("patente").value.trim();
+        const id_control = document.getElementById("id_control").value.trim();
+        const fechaHora = document.getElementById("fecha_hora").value;
+        const tramos = obtenerTramos();
+
+        if (!patente || !id_control || !fechaHora || !tramos) {
+            alert("Completa: Patente, ID Control, Fecha/Hora y al menos un Tramo.");
+            return;
+        }
+
+        document.getElementById("show-patente").textContent = patente;
+        document.getElementById("show-fecha").textContent   = formatearFechaHora(fechaHora);
+
+        datosTTM = null; // el genset no tiene datos TTM
+        ocultarEstados();
+        document.getElementById("resultado-section").classList.remove("visible"); // no aplica
+        document.getElementById("carga-section").classList.add("visible");
+    }
 
     // ── Al cargar ──────────────────────────────────────────────────────
     document.addEventListener("DOMContentLoaded", function () {
         const params     = new URLSearchParams(window.location.search);
-        const patente    = params.get("patente")    || "";
         const fecha      = params.get("fecha")      || hoy();
         const id_control = params.get("id_control") || "";
+
+        // ── Patentes: tractocamión y semirremolque llegan por separado ──
+        patenteTracto = params.get("patente_tracto") || params.get("patente") || "";
+        patenteGenset = params.get("patente_genset") || "";
 
         // ── Tramos dinámicos desde AppSheet ──
         // AppSheet envía: &tramos_disponibles=Chile→Mendoza,Mendoza→BsAs,...
@@ -376,21 +467,24 @@
             servicentros = servURL.split(",").map(s => s.trim()).filter(Boolean);
         }
 
-        document.getElementById("patente").value    = patente;
+        document.getElementById("patente").value    = patenteTracto;
         document.getElementById("id_control").value = id_control;
-        document.getElementById("show-patente").textContent = patente || "——";
+        document.getElementById("show-patente").textContent = patenteTracto || "——";
 
         // Fecha/hora inicial: si viene fecha por URL, la combina con hora actual
         const ahora = new Date();
         const horaActual = String(ahora.getHours()).padStart(2,"0") + ":" + String(ahora.getMinutes()).padStart(2,"0");
         document.getElementById("fecha_hora").value = `${fecha}T${horaActual}`;
         document.getElementById("show-fecha").textContent = formatearFechaHora(document.getElementById("fecha_hora").value);
-        document.getElementById("show-patente").textContent = patente || "——";
-        document.getElementById("show-fecha").textContent   = formatearFecha(fecha);
 
         // Inicializar con un tramo
         agregarTramo();
         renderizarServicentros();
+
+        // ── Tipo de equipo: viene desde AppSheet según el botón usado ──
+        // "tracto" (default) o "genset" — selecciona la pestaña automáticamente
+        const tipoURL = (params.get("tipo_equipo") || "tracto").toLowerCase();
+        seleccionarTipoEquipo(tipoURL === "genset" ? "genset" : "tracto");
     });
 
     // ── ① Tramos dinámicos (usa lista de AppSheet si viene por URL) ────
@@ -575,7 +669,12 @@
         const tipo_carga      = document.getElementById("tipo-carga").value;
         const servicentro     = document.getElementById("servicentro-select").value;
         const notas           = document.getElementById("notas").value.trim();
-        const odometro_edit   = document.getElementById("r-odometro-input").value || "";
+        const odometro_edit   = tipoEquipo === "tracto"
+            ? (document.getElementById("r-odometro-input").value || "")
+            : "";
+        const horometro       = tipoEquipo === "genset"
+            ? (document.getElementById("horometro-input").value || "")
+            : "";
 
         // Conversión ARS→CLP
         const tasa     = parseFloat(document.getElementById("tasa-cambio").value) || 0.64;
@@ -596,6 +695,7 @@
                 accion:             "guardar",
                 id_control,
                 patente,
+                tipo_equipo:        tipoEquipo,           // 'tracto' o 'genset'
                 fecha:              obtenerFechaHora(),   // fecha + hora si existe
                 tramo:              tramos,
                 tipo_carga,
@@ -610,7 +710,8 @@
                 litros_consumidos:  datosTTM?.litros_consumidos   ?? "",
                 km_recorridos:      datosTTM?.km_recorridos       ?? "",
                 rendimiento:        datosTTM?.rendimiento         ?? "",
-                odometro:           odometro_edit,         // valor editable
+                odometro:           odometro_edit,         // solo tractocamión
+                horometro:          horometro,             // solo genset
             });
 
             const resp = await jsonp(`${APPS_SCRIPT_URL}?${queryParams.toString()}`);
@@ -642,7 +743,7 @@
         ocultarEstados();
 
         // Limpiar campos de carga
-        ["litros-cargados","precio-litro","notas","r-odometro-input"].forEach(id => {
+        ["litros-cargados","precio-litro","notas","r-odometro-input","horometro-input"].forEach(id => {
             document.getElementById(id).value = "";
         });
         document.getElementById("servicentro-select").value = "";
