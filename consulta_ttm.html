@@ -6,7 +6,6 @@
     <title>Consulta Combustible — Romanesco</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
             font-family: 'Arial', sans-serif;
             background: #f0f2f5;
@@ -16,267 +15,80 @@
             align-items: center;
             padding: 20px 16px 40px;
         }
-
-        /* ── Header ── */
         .header {
-            width: 100%;
-            max-width: 480px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            width: 100%; max-width: 480px;
+            display: flex; align-items: center; gap: 10px;
             margin-bottom: 20px;
         }
-        .header-logo {
-            font-size: 18px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: #111;
-        }
-        .header-sub {
-            font-size: 10px;
-            letter-spacing: 3px;
-            color: #666;
-            text-transform: uppercase;
-        }
-        .header-divider {
-            width: 1px;
-            height: 36px;
-            background: #ccc;
-            margin: 0 4px;
-        }
-        .header-title {
-            font-size: 13px;
-            color: #444;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .header-logo { font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: #111; }
+        .header-sub  { font-size: 10px; letter-spacing: 3px; color: #666; text-transform: uppercase; }
+        .header-divider { width: 1px; height: 36px; background: #ccc; margin: 0 4px; }
+        .header-title { font-size: 13px; color: #444; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* ── Card principal ── */
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            width: 100%;
-            max-width: 480px;
-            overflow: hidden;
-        }
+        .card { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); width: 100%; max-width: 480px; overflow: hidden; }
 
-        /* ── Card: info del vehículo ── */
-        .vehicle-bar {
-            background: #1a1a2e;
-            color: white;
-            padding: 14px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .vehicle-patente {
-            font-size: 22px;
-            font-weight: 900;
-            letter-spacing: 2px;
-        }
-        .vehicle-fecha {
-            font-size: 12px;
-            color: #aaa;
-            text-align: right;
-        }
-        .vehicle-fecha span {
-            display: block;
-            font-size: 14px;
-            color: white;
-            font-weight: bold;
-        }
+        .vehicle-bar { background: #1a1a2e; color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .vehicle-patente { font-size: 22px; font-weight: 900; letter-spacing: 2px; }
+        .vehicle-fecha { font-size: 12px; color: #aaa; text-align: right; }
+        .vehicle-fecha span { display: block; font-size: 14px; color: white; font-weight: bold; }
 
-        /* ── Formulario ── */
-        .form-section {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        .form-section label {
-            display: block;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            margin-bottom: 6px;
-            font-weight: bold;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
+        .form-section { padding: 20px; border-bottom: 1px solid #eee; }
+        .form-section label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; font-weight: bold; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
         .form-group { display: flex; flex-direction: column; }
-        .form-group.full { grid-column: 1 / -1; }
 
         input, select {
-            border: 1.5px solid #ddd;
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 15px;
-            color: #111;
-            outline: none;
-            transition: border-color 0.2s;
-            background: #fafafa;
-            width: 100%;
+            border: 1.5px solid #ddd; border-radius: 8px; padding: 10px 12px;
+            font-size: 15px; color: #111; outline: none; transition: border-color 0.2s;
+            background: #fafafa; width: 100%;
         }
         input:focus, select:focus { border-color: #1a1a2e; background: white; }
 
-        /* ── Botón consultar ── */
         .btn-consultar {
-            width: 100%;
-            background: #1a1a2e;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 4px;
+            width: 100%; background: #1a1a2e; color: white; border: none;
+            border-radius: 8px; padding: 14px; font-size: 15px; font-weight: bold;
+            letter-spacing: 0.5px; cursor: pointer; transition: background 0.2s; margin-top: 4px;
         }
-        .btn-consultar:hover { background: #2d2d4e; }
+        .btn-consultar:hover    { background: #2d2d4e; }
         .btn-consultar:disabled { background: #aaa; cursor: not-allowed; }
 
-        /* ── Resultados TTM ── */
-        .resultado-section {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: none;
-        }
+        .resultado-section { padding: 20px; border-bottom: 1px solid #eee; display: none; }
         .resultado-section.visible { display: block; }
+        .resultado-titulo { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: bold; margin-bottom: 14px; }
 
-        .resultado-titulo {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            font-weight: bold;
-            margin-bottom: 14px;
-        }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+        .stat-box { background: #f7f8fa; border-radius: 8px; padding: 12px 14px; border-left: 3px solid #1a1a2e; }
+        .stat-box.destacado { border-left-color: #e67e22; background: #fff8f3; }
+        .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 4px; }
+        .stat-valor { font-size: 22px; font-weight: 900; color: #111; }
+        .stat-unidad { font-size: 12px; color: #888; font-weight: normal; margin-left: 2px; }
 
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 14px;
-        }
-        .stat-box {
-            background: #f7f8fa;
-            border-radius: 8px;
-            padding: 12px 14px;
-            border-left: 3px solid #1a1a2e;
-        }
-        .stat-box.destacado {
-            border-left-color: #e67e22;
-            background: #fff8f3;
-        }
-        .stat-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            margin-bottom: 4px;
-        }
-        .stat-valor {
-            font-size: 22px;
-            font-weight: 900;
-            color: #111;
-        }
-        .stat-unidad {
-            font-size: 12px;
-            color: #888;
-            font-weight: normal;
-            margin-left: 2px;
-        }
-
-        /* ── Sección carga de combustible ── */
-        .carga-section {
-            padding: 20px;
-            display: none;
-        }
+        .carga-section { padding: 20px; display: none; }
         .carga-section.visible { display: block; }
+        .carga-titulo { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: bold; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
 
-        .carga-titulo {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            font-weight: bold;
-            margin-bottom: 14px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
-        }
-
-        /* ── Estado / mensajes ── */
-        .estado {
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin: 12px 20px;
-            display: none;
-            align-items: center;
-            gap: 8px;
-        }
-        .estado.visible { display: flex; }
+        .estado { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin: 12px 20px; display: none; align-items: center; gap: 8px; }
+        .estado.visible  { display: flex; }
         .estado.cargando { background: #eef2ff; color: #3730a3; }
         .estado.error    { background: #fef2f2; color: #991b1b; }
         .estado.exito    { background: #f0fdf4; color: #166534; }
 
-        /* ── Botón guardar ── */
         .btn-guardar {
-            width: 100%;
-            background: #16a34a;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 8px;
+            width: 100%; background: #16a34a; color: white; border: none;
+            border-radius: 8px; padding: 14px; font-size: 15px; font-weight: bold;
+            cursor: pointer; transition: background 0.2s; margin-top: 8px;
         }
-        .btn-guardar:hover { background: #15803d; }
+        .btn-guardar:hover    { background: #15803d; }
         .btn-guardar:disabled { background: #aaa; cursor: not-allowed; }
 
-        /* ── Confirmación guardado ── */
-        .confirmacion {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 30px 20px;
-            text-align: center;
-        }
+        .confirmacion { display: none; flex-direction: column; align-items: center; padding: 30px 20px; text-align: center; }
         .confirmacion.visible { display: flex; }
-        .confirmacion-icono { font-size: 48px; margin-bottom: 12px; }
+        .confirmacion-icono  { font-size: 48px; margin-bottom: 12px; }
         .confirmacion-titulo { font-size: 18px; font-weight: bold; color: #111; margin-bottom: 6px; }
-        .confirmacion-sub { font-size: 13px; color: #666; }
-        .btn-nueva {
-            margin-top: 20px;
-            background: #f0f2f5;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-            cursor: pointer;
-        }
+        .confirmacion-sub    { font-size: 13px; color: #666; }
+        .btn-nueva { margin-top: 20px; background: #f0f2f5; border: none; border-radius: 8px; padding: 12px 24px; font-size: 14px; font-weight: bold; color: #333; cursor: pointer; }
 
-        .spinner {
-            width: 16px; height: 16px;
-            border: 2px solid currentColor;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            flex-shrink: 0;
-        }
+        .spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
@@ -293,10 +105,9 @@
 
 <div class="card">
 
-    <!-- Barra vehículo -->
     <div class="vehicle-bar">
         <div>
-            <div style="font-size:10px; color:#aaa; letter-spacing:1px; text-transform:uppercase; margin-bottom:2px;">Vehículo</div>
+            <div style="font-size:10px;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;">Vehículo</div>
             <div class="vehicle-patente" id="show-patente">——</div>
         </div>
         <div class="vehicle-fecha">
@@ -340,7 +151,7 @@
         </button>
     </div>
 
-    <!-- Estado / loading -->
+    <!-- Estados -->
     <div class="estado cargando" id="estado-cargando">
         <div class="spinner"></div>
         Consultando telemetría...
@@ -370,13 +181,13 @@
                 <div class="stat-valor" id="r-rendimiento">—<span class="stat-unidad">km/L</span></div>
             </div>
         </div>
-        <div class="stat-box" style="margin-bottom:0">
+        <div class="stat-box">
             <div class="stat-label">Odómetro</div>
             <div class="stat-valor" style="font-size:16px" id="r-odometro">—<span class="stat-unidad">km totales</span></div>
         </div>
     </div>
 
-    <!-- Sección carga de combustible -->
+    <!-- Carga de combustible -->
     <div class="carga-section" id="carga-section">
         <div class="carga-titulo">Registrar carga de combustible</div>
         <div class="form-row">
@@ -426,38 +237,55 @@
         <button class="btn-nueva" onclick="nuevaConsulta()">Nueva consulta</button>
     </div>
 
-</div><!-- /.card -->
+</div>
 
 <script>
-    // ── URL de tu Apps Script (reemplaza con la tuya) ──────────────────
+    // ── REEMPLAZA CON LA URL DE TU APPS SCRIPT ─────────────────────────
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzj-uDJlqgFaNmdkqs2DqQr-QiAP4ACB6e8S6fVla9E/exec";
 
-    // Datos TTM guardados al consultar
     let datosTTM = null;
 
-    // ── Al cargar: leer parámetros URL de AppSheet ─────────────────────
     document.addEventListener("DOMContentLoaded", function () {
-        const params = new URLSearchParams(window.location.search);
-
+        const params     = new URLSearchParams(window.location.search);
         const patente    = params.get("patente")    || "";
         const fecha      = params.get("fecha")      || hoy();
         const id_control = params.get("id_control") || "";
-        const tramo      = params.get("tramo")      || "";
 
         document.getElementById("patente").value    = patente;
         document.getElementById("fecha").value      = fecha;
         document.getElementById("id_control").value = id_control;
-
-        if (tramo) {
-            const sel = document.getElementById("tramo");
-            [...sel.options].forEach(o => { if (o.value === tramo) o.selected = true; });
-        }
-
         document.getElementById("show-patente").textContent = patente || "——";
         document.getElementById("show-fecha").textContent   = formatearFecha(fecha);
     });
 
-    // ── Consultar API TTM ──────────────────────────────────────────────
+    // ── JSONP: evita CORS en peticiones GET a Apps Script ──────────────
+    function jsonp(url) {
+        return new Promise((resolve, reject) => {
+            const callbackName = "cb_" + Date.now();
+            const script = document.createElement("script");
+            const timeout = setTimeout(() => {
+                cleanup();
+                reject(new Error("Timeout"));
+            }, 10000);
+
+            function cleanup() {
+                clearTimeout(timeout);
+                delete window[callbackName];
+                if (script.parentNode) script.parentNode.removeChild(script);
+            }
+
+            window[callbackName] = function(data) {
+                cleanup();
+                resolve(data);
+            };
+
+            script.src = `${url}&callback=${callbackName}`;
+            script.onerror = () => { cleanup(); reject(new Error("Error de red")); };
+            document.head.appendChild(script);
+        });
+    }
+
+    // ── Consultar TTM via JSONP (sin CORS) ─────────────────────────────
     async function consultarTTM() {
         const patente = document.getElementById("patente").value.trim();
         const fecha   = document.getElementById("fecha").value;
@@ -475,29 +303,18 @@
         document.getElementById("btn-consultar").disabled = true;
 
         try {
-            // Llamada directa a la API TTM desde el navegador
-            const url  = `https://ttm.com.ar/testing/api/get_daily_analytics.php?date=${fecha}&equipo=${patente}`;
-            const resp = await fetch(url);
+            const url  = `${APPS_SCRIPT_URL}?accion=consultar&patente=${encodeURIComponent(patente)}&fecha=${fecha}`;
+            const json = await jsonp(url);
 
-            if (!resp.ok) throw new Error("Sin respuesta de TTM");
+            if (!json.ok) throw new Error(json.error || "Sin datos");
 
-            const ttm = await resp.json();
+            datosTTM = json;
 
-            if (!ttm || ttm.error) throw new Error("Datos no disponibles");
-
-            datosTTM = ttm;
-
-            // Calcular rendimiento
-            const rendimiento = parseFloat(ttm.litros_consumidos) > 0
-                ? (parseFloat(ttm.km_recorridos) / parseFloat(ttm.litros_consumidos)).toFixed(2)
-                : "—";
-
-            // Mostrar resultados
-            document.getElementById("r-litros-final").innerHTML     = `${ttm.litros_final}<span class="stat-unidad"> L</span>`;
-            document.getElementById("r-litros-consumidos").innerHTML = `${ttm.litros_consumidos}<span class="stat-unidad"> L</span>`;
-            document.getElementById("r-km").innerHTML                = `${parseFloat(ttm.km_recorridos).toFixed(0)}<span class="stat-unidad"> km</span>`;
-            document.getElementById("r-rendimiento").innerHTML       = `${rendimiento}<span class="stat-unidad"> km/L</span>`;
-            document.getElementById("r-odometro").innerHTML          = `${parseFloat(ttm.odometro_final).toLocaleString("es-CL")}<span class="stat-unidad"> km</span>`;
+            document.getElementById("r-litros-final").innerHTML      = `${json.litros_final}<span class="stat-unidad"> L</span>`;
+            document.getElementById("r-litros-consumidos").innerHTML  = `${json.litros_consumidos}<span class="stat-unidad"> L</span>`;
+            document.getElementById("r-km").innerHTML                 = `${parseFloat(json.km_recorridos).toFixed(0)}<span class="stat-unidad"> km</span>`;
+            document.getElementById("r-rendimiento").innerHTML        = `${json.rendimiento ?? "—"}<span class="stat-unidad"> km/L</span>`;
+            document.getElementById("r-odometro").innerHTML           = `${parseFloat(json.odometro_final).toLocaleString("es-CL")}<span class="stat-unidad"> km</span>`;
 
             ocultarEstados();
             document.getElementById("resultado-section").classList.add("visible");
@@ -506,105 +323,90 @@
         } catch (err) {
             ocultarEstados();
             mostrarEstado("error");
+            console.error(err);
         }
 
         document.getElementById("btn-consultar").disabled = false;
     }
 
-    // ── Guardar en Google Sheets vía Apps Script ───────────────────────
+    // ── Guardar via Apps Script POST ────────────────────────────────────
     async function guardarRegistro() {
-        const id_control     = document.getElementById("id_control").value.trim();
-        const patente        = document.getElementById("patente").value.trim();
-        const fecha          = document.getElementById("fecha").value;
-        const tramo          = document.getElementById("tramo").value;
-        const litros_cargados = parseFloat(document.getElementById("litros-cargados").value) || 0;
-        const precio         = parseFloat(document.getElementById("precio-litro").value) || 0;
-        const moneda         = document.getElementById("moneda").value;
-        const tipo_carga     = document.getElementById("tipo-carga").value;
-        const servicentro    = document.getElementById("servicentro").value.trim();
-        const notas          = document.getElementById("notas").value.trim();
+        const id_control      = document.getElementById("id_control").value.trim();
+        const patente         = document.getElementById("patente").value.trim();
+        const fecha           = document.getElementById("fecha").value;
+        const tramo           = document.getElementById("tramo").value;
+        const litros_cargados = document.getElementById("litros-cargados").value;
+        const precio          = document.getElementById("precio-litro").value;
+        const moneda          = document.getElementById("moneda").value;
+        const tipo_carga      = document.getElementById("tipo-carga").value;
+        const servicentro     = document.getElementById("servicentro").value.trim();
+        const notas           = document.getElementById("notas").value.trim();
 
         if (!id_control || !patente || !fecha || !tramo) {
             alert("Completa al menos: ID Control, Patente, Fecha y Tramo.");
             return;
         }
 
-        document.getElementById("btn-guardar").disabled = true;
-        document.getElementById("btn-guardar").textContent = "Guardando...";
+        const btn = document.getElementById("btn-guardar");
+        btn.disabled    = true;
+        btn.textContent = "Guardando...";
 
         const payload = {
-            id_control,
-            patente,
-            fecha,
-            tramo,
-            litros_cargados,
-            precio,
-            moneda,
-            tipo_carga,
-            servicentro,
-            notas,
-            // Datos TTM obtenidos en la consulta
-            litros_estanque:   datosTTM ? datosTTM.litros_final        : "",
-            litros_consumidos: datosTTM ? datosTTM.litros_consumidos    : "",
-            km_recorridos:     datosTTM ? datosTTM.km_recorridos        : "",
-            odometro:          datosTTM ? datosTTM.odometro_final       : "",
-            rendimiento:       datosTTM && parseFloat(datosTTM.litros_consumidos) > 0
-                ? (parseFloat(datosTTM.km_recorridos) / parseFloat(datosTTM.litros_consumidos)).toFixed(2)
-                : ""
+            id_control, patente, fecha, tramo,
+            litros_cargados, precio, moneda, tipo_carga, servicentro, notas,
+            litros_estanque:   datosTTM?.litros_final        ?? "",
+            litros_consumidos: datosTTM?.litros_consumidos   ?? "",
+            km_recorridos:     datosTTM?.km_recorridos       ?? "",
+            odometro:          datosTTM?.odometro_final      ?? "",
+            rendimiento:       datosTTM?.rendimiento         ?? "",
         };
 
         try {
-            await fetch(APPS_SCRIPT_URL, {
+            const resp = await fetch(APPS_SCRIPT_URL, {
                 method:  "POST",
-                mode:    "no-cors",   // necesario para Apps Script desde browser
+                mode:    "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body:    JSON.stringify(payload)
             });
 
-            // no-cors no devuelve respuesta legible, asumimos éxito si no hay error
+            // no-cors no permite leer la respuesta — si no hay excepción, asumimos éxito
             document.getElementById("carga-section").classList.remove("visible");
             document.getElementById("resultado-section").classList.remove("visible");
             document.getElementById("confirmacion").classList.add("visible");
 
         } catch (err) {
-            alert("Error al guardar. Verifica tu conexión e intenta nuevamente.");
-            document.getElementById("btn-guardar").disabled = false;
-            document.getElementById("btn-guardar").textContent = "Guardar registro";
+            alert("Error al guardar. Verifica tu conexión.");
+            btn.disabled    = false;
+            btn.textContent = "Guardar registro";
         }
     }
 
-    // ── Nueva consulta ─────────────────────────────────────────────────
     function nuevaConsulta() {
         datosTTM = null;
         document.getElementById("confirmacion").classList.remove("visible");
-        document.getElementById("litros-cargados").value = "";
-        document.getElementById("precio-litro").value    = "";
-        document.getElementById("notas").value           = "";
-        document.getElementById("servicentro").value     = "";
+        ["litros-cargados","precio-litro","notas","servicentro"].forEach(id => {
+            document.getElementById(id).value = "";
+        });
         ocultarResultados();
     }
 
-    // ── Utilidades ─────────────────────────────────────────────────────
     function mostrarEstado(tipo, msg) {
         ocultarEstados();
         const el = document.getElementById(`estado-${tipo}`);
-        if (el) {
-            if (msg) el.textContent = msg;
-            el.classList.add("visible");
-        }
+        if (msg) el.textContent = msg;
+        el.classList.add("visible");
     }
     function ocultarEstados() {
-        ["cargando","error"].forEach(t => {
-            document.getElementById(`estado-${t}`).classList.remove("visible");
-        });
+        ["cargando","error"].forEach(t =>
+            document.getElementById(`estado-${t}`).classList.remove("visible")
+        );
     }
     function ocultarResultados() {
-        document.getElementById("resultado-section").classList.remove("visible");
-        document.getElementById("carga-section").classList.remove("visible");
+        ["resultado-section","carga-section"].forEach(id =>
+            document.getElementById(id).classList.remove("visible")
+        );
     }
-    function hoy() {
-        return new Date().toISOString().split("T")[0];
-    }
+    function hoy() { return new Date().toISOString().split("T")[0]; }
     function formatearFecha(iso) {
         if (!iso) return "——";
         const [y,m,d] = iso.split("-");
