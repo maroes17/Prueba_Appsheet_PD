@@ -15,81 +15,133 @@
             align-items: center;
             padding: 20px 16px 40px;
         }
-        .header {
-            width: 100%; max-width: 480px;
-            display: flex; align-items: center; gap: 10px;
-            margin-bottom: 20px;
-        }
-        .header-logo { font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: #111; }
-        .header-sub  { font-size: 10px; letter-spacing: 3px; color: #666; text-transform: uppercase; }
-        .header-divider { width: 1px; height: 36px; background: #ccc; margin: 0 4px; }
-        .header-title { font-size: 13px; color: #444; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header { width:100%; max-width:480px; display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+        .header-logo { font-size:18px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:#111; }
+        .header-sub  { font-size:10px; letter-spacing:3px; color:#666; text-transform:uppercase; }
+        .header-divider { width:1px; height:36px; background:#ccc; margin:0 4px; }
+        .header-title { font-size:13px; color:#444; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; }
 
-        .card { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); width: 100%; max-width: 480px; overflow: hidden; }
+        .card { background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08); width:100%; max-width:480px; overflow:hidden; }
 
-        .vehicle-bar { background: #1a1a2e; color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .vehicle-patente { font-size: 22px; font-weight: 900; letter-spacing: 2px; }
-        .vehicle-fecha { font-size: 12px; color: #aaa; text-align: right; }
-        .vehicle-fecha span { display: block; font-size: 14px; color: white; font-weight: bold; }
+        .vehicle-bar { background:#1a1a2e; color:white; padding:14px 20px; display:flex; justify-content:space-between; align-items:center; }
+        .vehicle-patente { font-size:22px; font-weight:900; letter-spacing:2px; }
+        .vehicle-fecha { font-size:12px; color:#aaa; text-align:right; }
+        .vehicle-fecha span { display:block; font-size:14px; color:white; font-weight:bold; }
 
-        .form-section { padding: 20px; border-bottom: 1px solid #eee; }
-        .form-section label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 6px; font-weight: bold; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-        .form-group { display: flex; flex-direction: column; }
+        .form-section { padding:20px; border-bottom:1px solid #eee; }
+        label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:6px; font-weight:bold; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+        .form-group { display:flex; flex-direction:column; }
+        .form-group.full { grid-column:1/-1; }
 
         input, select {
-            border: 1.5px solid #ddd; border-radius: 8px; padding: 10px 12px;
-            font-size: 15px; color: #111; outline: none; transition: border-color 0.2s;
-            background: #fafafa; width: 100%;
+            border:1.5px solid #ddd; border-radius:8px; padding:10px 12px;
+            font-size:15px; color:#111; outline:none; transition:border-color 0.2s;
+            background:#fafafa; width:100%;
         }
-        input:focus, select:focus { border-color: #1a1a2e; background: white; }
+        input:focus, select:focus { border-color:#1a1a2e; background:white; }
+        input[readonly] { background:#f0f0f0; color:#555; cursor:default; }
+
+        /* Tramos dinámicos */
+        .tramos-container { margin-bottom:12px; }
+        .tramo-row { display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+        .tramo-row select { flex:1; }
+        .btn-remove-tramo {
+            width:32px; height:32px; border-radius:50%; border:1.5px solid #ddd;
+            background:white; color:#999; font-size:18px; cursor:pointer;
+            display:flex; align-items:center; justify-content:center; flex-shrink:0;
+            line-height:1;
+        }
+        .btn-remove-tramo:hover { border-color:#e11d48; color:#e11d48; }
+        .btn-add-tramo {
+            display:flex; align-items:center; gap:6px; padding:8px 12px;
+            border:1.5px dashed #ccc; border-radius:8px; background:transparent;
+            color:#888; font-size:13px; cursor:pointer; width:100%;
+            justify-content:center; transition:all 0.2s;
+        }
+        .btn-add-tramo:hover { border-color:#1a1a2e; color:#1a1a2e; }
+
+        /* Servicentro con agregar */
+        .servicentro-container { position:relative; }
+        .servicentro-input-row { display:flex; gap:8px; }
+        .servicentro-input-row select { flex:1; }
+        .btn-add-serv {
+            width:40px; height:40px; border-radius:8px; border:1.5px solid #ddd;
+            background:white; color:#1a1a2e; font-size:20px; cursor:pointer;
+            display:flex; align-items:center; justify-content:center; flex-shrink:0;
+        }
+        .btn-add-serv:hover { border-color:#1a1a2e; background:#f0f4ff; }
+        .add-serv-form { display:none; margin-top:8px; flex-direction:column; gap:6px; }
+        .add-serv-form.visible { display:flex; }
+        .add-serv-row { display:flex; gap:6px; }
+        .add-serv-row input { flex:1; }
+        .btn-confirm-serv {
+            padding:8px 14px; background:#1a1a2e; color:white; border:none;
+            border-radius:8px; font-size:13px; font-weight:bold; cursor:pointer; white-space:nowrap;
+        }
+
+        /* Conversión ARS→CLP */
+        .conversion-box {
+            background:#fff8f3; border:1.5px solid #fed7aa; border-radius:8px;
+            padding:10px 14px; margin-top:8px; display:none;
+        }
+        .conversion-box.visible { display:block; }
+        .conversion-box .conv-label { font-size:11px; color:#92400e; text-transform:uppercase; letter-spacing:1px; font-weight:bold; margin-bottom:6px; }
+        .conv-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#78350f; }
+        .conv-valor { font-weight:bold; font-size:15px; }
+        .conv-tasa { display:flex; align-items:center; gap:6px; margin-top:6px; }
+        .conv-tasa label { margin:0; color:#92400e; white-space:nowrap; }
+        .conv-tasa input { width:80px; padding:4px 8px; font-size:13px; border:1px solid #fed7aa; border-radius:6px; background:white; }
 
         .btn-consultar {
-            width: 100%; background: #1a1a2e; color: white; border: none;
-            border-radius: 8px; padding: 14px; font-size: 15px; font-weight: bold;
-            letter-spacing: 0.5px; cursor: pointer; transition: background 0.2s; margin-top: 4px;
+            width:100%; background:#1a1a2e; color:white; border:none;
+            border-radius:8px; padding:14px; font-size:15px; font-weight:bold;
+            cursor:pointer; transition:background 0.2s; margin-top:4px;
         }
-        .btn-consultar:hover    { background: #2d2d4e; }
-        .btn-consultar:disabled { background: #aaa; cursor: not-allowed; }
+        .btn-consultar:hover    { background:#2d2d4e; }
+        .btn-consultar:disabled { background:#aaa; cursor:not-allowed; }
 
-        .resultado-section { padding: 20px; border-bottom: 1px solid #eee; display: none; }
-        .resultado-section.visible { display: block; }
-        .resultado-titulo { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: bold; margin-bottom: 14px; }
+        .resultado-section { padding:20px; border-bottom:1px solid #eee; display:none; }
+        .resultado-section.visible { display:block; }
+        .resultado-titulo { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:bold; margin-bottom:14px; }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .stat-box { background: #f7f8fa; border-radius: 8px; padding: 12px 14px; border-left: 3px solid #1a1a2e; }
-        .stat-box.destacado { border-left-color: #e67e22; background: #fff8f3; }
-        .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 4px; }
-        .stat-valor { font-size: 22px; font-weight: 900; color: #111; }
-        .stat-unidad { font-size: 12px; color: #888; font-weight: normal; margin-left: 2px; }
+        .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+        .stat-box { background:#f7f8fa; border-radius:8px; padding:12px 14px; border-left:3px solid #1a1a2e; }
+        .stat-box.destacado { border-left-color:#e67e22; background:#fff8f3; }
+        .stat-label { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:4px; }
+        .stat-valor { font-size:22px; font-weight:900; color:#111; }
+        .stat-unidad { font-size:12px; color:#888; font-weight:normal; margin-left:2px; }
 
-        .carga-section { padding: 20px; display: none; }
-        .carga-section.visible { display: block; }
-        .carga-titulo { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: bold; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #eee; }
+        /* Odómetro editable */
+        .odometro-editable { display:flex; gap:8px; align-items:center; }
+        .odometro-editable input { flex:1; font-size:16px; font-weight:bold; }
 
-        .estado { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin: 12px 20px; display: none; align-items: center; gap: 8px; }
-        .estado.visible  { display: flex; }
-        .estado.cargando { background: #eef2ff; color: #3730a3; }
-        .estado.error    { background: #fef2f2; color: #991b1b; }
-        .estado.exito    { background: #f0fdf4; color: #166534; }
+        .carga-section { padding:20px; display:none; }
+        .carga-section.visible { display:block; }
+        .carga-titulo { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:bold; margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid #eee; }
+
+        .estado { padding:12px 16px; border-radius:8px; font-size:13px; margin:12px 20px; display:none; align-items:center; gap:8px; }
+        .estado.visible  { display:flex; }
+        .estado.cargando { background:#eef2ff; color:#3730a3; }
+        .estado.error    { background:#fef2f2; color:#991b1b; }
 
         .btn-guardar {
-            width: 100%; background: #16a34a; color: white; border: none;
-            border-radius: 8px; padding: 14px; font-size: 15px; font-weight: bold;
-            cursor: pointer; transition: background 0.2s; margin-top: 8px;
+            width:100%; background:#16a34a; color:white; border:none;
+            border-radius:8px; padding:14px; font-size:15px; font-weight:bold;
+            cursor:pointer; transition:background 0.2s; margin-top:8px;
         }
-        .btn-guardar:hover    { background: #15803d; }
-        .btn-guardar:disabled { background: #aaa; cursor: not-allowed; }
+        .btn-guardar:hover    { background:#15803d; }
+        .btn-guardar:disabled { background:#aaa; cursor:not-allowed; }
 
-        .confirmacion { display: none; flex-direction: column; align-items: center; padding: 30px 20px; text-align: center; }
-        .confirmacion.visible { display: flex; }
-        .confirmacion-icono  { font-size: 48px; margin-bottom: 12px; }
-        .confirmacion-titulo { font-size: 18px; font-weight: bold; color: #111; margin-bottom: 6px; }
-        .confirmacion-sub    { font-size: 13px; color: #666; }
-        .btn-nueva { margin-top: 20px; background: #f0f2f5; border: none; border-radius: 8px; padding: 12px 24px; font-size: 14px; font-weight: bold; color: #333; cursor: pointer; }
+        .confirmacion { display:none; flex-direction:column; align-items:center; padding:30px 20px; text-align:center; }
+        .confirmacion.visible { display:flex; }
+        .confirmacion-icono  { font-size:48px; margin-bottom:12px; }
+        .confirmacion-titulo { font-size:18px; font-weight:bold; color:#111; margin-bottom:6px; }
+        .confirmacion-sub    { font-size:13px; color:#666; }
+        .btn-nueva { margin-top:20px; background:#f0f2f5; border:none; border-radius:8px; padding:12px 24px; font-size:14px; font-weight:bold; color:#333; cursor:pointer; }
 
-        .spinner { width: 16px; height: 16px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { width:16px; height:16px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:spin 0.7s linear infinite; flex-shrink:0; }
+        @keyframes spin { to { transform:rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -105,6 +157,7 @@
 
 <div class="card">
 
+    <!-- Barra vehículo -->
     <div class="vehicle-bar">
         <div>
             <div style="font-size:10px;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;">Vehículo</div>
@@ -116,7 +169,7 @@
         </div>
     </div>
 
-    <!-- Formulario -->
+    <!-- Formulario de consulta -->
     <div class="form-section">
         <div class="form-row">
             <div class="form-group">
@@ -124,31 +177,35 @@
                 <input type="text" id="patente" placeholder="Ej: FXRX64">
             </div>
             <div class="form-group">
-                <label>Fecha</label>
-                <input type="date" id="fecha">
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
                 <label>ID Control</label>
                 <input type="text" id="id_control" placeholder="Ej: 8401">
             </div>
-            <div class="form-group">
-                <label>Tramo</label>
-                <select id="tramo">
-                    <option value="">Seleccionar...</option>
-                    <option>Chile → Mendoza</option>
-                    <option>Mendoza → Buenos Aires</option>
-                    <option>Buenos Aires → Mendoza</option>
-                    <option>Mendoza → San Antonio</option>
-                    <option>San Antonio → Mendoza</option>
-                    <option>Mendoza → Chile</option>
-                </select>
+        </div>
+
+        <!-- ① Fecha y hora en un solo campo (datetime-local) -->
+        <div class="form-row">
+            <div class="form-group full">
+                <label>Fecha y hora de consulta</label>
+                <input type="datetime-local" id="fecha_hora">
             </div>
         </div>
-        <button class="btn-consultar" id="btn-consultar" onclick="consultarTTM()">
-            Consultar estanque
+
+        <!-- ② Tramos dinámicos -->
+        <div style="margin-bottom:4px;">
+            <label>Tramo(s)</label>
+        </div>
+        <div class="tramos-container" id="tramos-container">
+            <!-- Se genera dinámicamente -->
+        </div>
+        <button class="btn-add-tramo" onclick="agregarTramo()">
+            ＋ Agregar tramo
         </button>
+
+        <div style="margin-top:16px;">
+            <button class="btn-consultar" id="btn-consultar" onclick="consultarTTM()">
+                Consultar estanque
+            </button>
+        </div>
     </div>
 
     <!-- Estados -->
@@ -160,7 +217,7 @@
         ⚠ No se pudo obtener datos. Verifica la patente y la fecha.
     </div>
 
-    <!-- Resultados TTM -->
+    <!-- ③ Resultados TTM -->
     <div class="resultado-section" id="resultado-section">
         <div class="resultado-titulo">Estado del estanque — datos TTM</div>
         <div class="stat-grid">
@@ -181,29 +238,35 @@
                 <div class="stat-valor" id="r-rendimiento">—<span class="stat-unidad">km/L</span></div>
             </div>
         </div>
-        <div class="stat-box">
-            <div class="stat-label">Odómetro</div>
-            <div class="stat-valor" style="font-size:16px" id="r-odometro">—<span class="stat-unidad">km totales</span></div>
+        <!-- ③ Odómetro editable -->
+        <div style="margin-top:10px;">
+            <label style="margin-bottom:6px;">Odómetro (editable)</label>
+            <div class="odometro-editable">
+                <input type="number" id="r-odometro-input" placeholder="km totales">
+                <span style="font-size:12px;color:#888;white-space:nowrap;">km totales</span>
+            </div>
         </div>
     </div>
 
-    <!-- Carga de combustible -->
+    <!-- Sección carga de combustible -->
     <div class="carga-section" id="carga-section">
         <div class="carga-titulo">Registrar carga de combustible</div>
+
         <div class="form-row">
             <div class="form-group">
                 <label>Litros cargados</label>
-                <input type="number" id="litros-cargados" placeholder="0" min="0" step="0.1">
+                <input type="number" id="litros-cargados" placeholder="0" min="0" step="0.1" oninput="calcularConversion()">
             </div>
             <div class="form-group">
                 <label>Precio por litro</label>
-                <input type="number" id="precio-litro" placeholder="0" min="0" step="0.01">
+                <input type="number" id="precio-litro" placeholder="0" min="0" step="0.01" oninput="calcularConversion()">
             </div>
         </div>
+
         <div class="form-row">
             <div class="form-group">
                 <label>Moneda</label>
-                <select id="moneda">
+                <select id="moneda" onchange="calcularConversion()">
                     <option value="CLP">CLP — Peso chileno</option>
                     <option value="ARS">ARS — Peso argentino</option>
                 </select>
@@ -216,14 +279,47 @@
                 </select>
             </div>
         </div>
-        <div class="form-group" style="margin-bottom:12px">
-            <label>Servicentro</label>
-            <input type="text" id="servicentro" placeholder="Nombre del servicentro">
+
+        <!-- ④ Conversión ARS → CLP -->
+        <div class="conversion-box" id="conversion-box">
+            <div class="conv-label">Conversión ARS → CLP</div>
+            <div class="conv-tasa">
+                <label>Tasa (1 ARS =</label>
+                <input type="number" id="tasa-cambio" value="0.64" step="0.01" min="0.01" oninput="calcularConversion()">
+                <label>CLP)</label>
+            </div>
+            <div class="conv-row" style="margin-top:8px;">
+                <span>Monto ARS:</span>
+                <span class="conv-valor" id="conv-monto-ars">$0</span>
+            </div>
+            <div class="conv-row">
+                <span>Equivalente CLP:</span>
+                <span class="conv-valor" id="conv-monto-clp">$0</span>
+            </div>
         </div>
-        <div class="form-group" style="margin-bottom:12px">
+
+        <!-- ⑤ Servicentro con agregar -->
+        <div class="form-group" style="margin-bottom:12px; margin-top:12px;">
+            <label>Servicentro</label>
+            <div class="servicentro-input-row">
+                <select id="servicentro-select">
+                    <option value="">Seleccionar...</option>
+                </select>
+                <button class="btn-add-serv" onclick="toggleAgregarServ()" title="Agregar nuevo servicentro">＋</button>
+            </div>
+            <div class="add-serv-form" id="add-serv-form">
+                <div class="add-serv-row">
+                    <input type="text" id="nuevo-serv-input" placeholder="Nombre del servicentro">
+                    <button class="btn-confirm-serv" onclick="confirmarNuevoServ()">Agregar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px;">
             <label>Notas</label>
             <input type="text" id="notas" placeholder="Observaciones opcionales">
         </div>
+
         <button class="btn-guardar" id="btn-guardar" onclick="guardarRegistro()">
             Guardar registro
         </button>
@@ -240,63 +336,199 @@
 </div>
 
 <script>
-    // ── REEMPLAZA CON LA URL DE TU APPS SCRIPT ─────────────────────────
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzj-uDJlqgFaNmdkqs2DqQr-QiAP4ACB6e8S6fVla9E/exec";
+
+    // Opciones de tramo disponibles
+    const TRAMOS_OPCIONES = [
+        "Chile → Mendoza",
+        "Mendoza → Buenos Aires",
+        "Buenos Aires → Mendoza",
+        "Mendoza → San Antonio",
+        "San Antonio → Mendoza",
+        "Mendoza → Chile",
+    ];
+
+    // Se sobrescribe si AppSheet envía la lista por URL (parámetro tramos_disponibles)
+    let TRAMOS_ACTIVOS = [...TRAMOS_OPCIONES];
+
+    // Servicentros guardados en memoria (se pueden agregar durante la sesión)
+    let servicentros = ["Copa Petróleo", "YPF", "Shell", "Petrobras", "COPEC", "Otro"];
 
     let datosTTM = null;
 
+    // ── Al cargar ──────────────────────────────────────────────────────
     document.addEventListener("DOMContentLoaded", function () {
         const params     = new URLSearchParams(window.location.search);
         const patente    = params.get("patente")    || "";
         const fecha      = params.get("fecha")      || hoy();
         const id_control = params.get("id_control") || "";
 
+        // ── Tramos dinámicos desde AppSheet ──
+        // AppSheet envía: &tramos_disponibles=Chile→Mendoza,Mendoza→BsAs,...
+        const tramosURL = params.get("tramos_disponibles");
+        if (tramosURL) {
+            TRAMOS_ACTIVOS = tramosURL.split(",").map(t => t.trim()).filter(Boolean);
+        }
+
+        // ── Servicentros dinámicos desde AppSheet (opcional) ──
+        const servURL = params.get("servicentros_disponibles");
+        if (servURL) {
+            servicentros = servURL.split(",").map(s => s.trim()).filter(Boolean);
+        }
+
         document.getElementById("patente").value    = patente;
-        document.getElementById("fecha").value      = fecha;
         document.getElementById("id_control").value = id_control;
         document.getElementById("show-patente").textContent = patente || "——";
+
+        // Fecha/hora inicial: si viene fecha por URL, la combina con hora actual
+        const ahora = new Date();
+        const horaActual = String(ahora.getHours()).padStart(2,"0") + ":" + String(ahora.getMinutes()).padStart(2,"0");
+        document.getElementById("fecha_hora").value = `${fecha}T${horaActual}`;
+        document.getElementById("show-fecha").textContent = formatearFechaHora(document.getElementById("fecha_hora").value);
+        document.getElementById("show-patente").textContent = patente || "——";
         document.getElementById("show-fecha").textContent   = formatearFecha(fecha);
+
+        // Inicializar con un tramo
+        agregarTramo();
+        renderizarServicentros();
     });
 
-    // ── JSONP: evita CORS en peticiones GET a Apps Script ──────────────
+    // ── ① Tramos dinámicos (usa lista de AppSheet si viene por URL) ────
+    function agregarTramo(valorInicial) {
+        const container = document.getElementById("tramos-container");
+        const idx = container.children.length;
+
+        const row = document.createElement("div");
+        row.className = "tramo-row";
+        row.dataset.idx = idx;
+
+        const sel = document.createElement("select");
+        sel.innerHTML = `<option value="">Seleccionar tramo...</option>` +
+            TRAMOS_ACTIVOS.map(t => `<option value="${t}"${valorInicial===t?' selected':''}>${t}</option>`).join("");
+
+        const btnRemove = document.createElement("button");
+        btnRemove.className = "btn-remove-tramo";
+        btnRemove.innerHTML = "×";
+        btnRemove.title = "Eliminar tramo";
+        btnRemove.onclick = function() {
+            if (document.getElementById("tramos-container").children.length > 1) {
+                row.remove();
+            }
+        };
+
+        row.appendChild(sel);
+        row.appendChild(btnRemove);
+        container.appendChild(row);
+    }
+
+    function obtenerTramos() {
+        const rows = document.getElementById("tramos-container").querySelectorAll("select");
+        return [...rows].map(s => s.value).filter(Boolean).join(" | ");
+    }
+
+    // ── ② Fecha y hora unificadas (datetime-local) ─────────────────────
+    document.getElementById("fecha_hora").addEventListener("change", function() {
+        document.getElementById("show-fecha").textContent = formatearFechaHora(this.value);
+    });
+
+    function obtenerFechaSolo() {
+        // La API TTM solo necesita la fecha (YYYY-MM-DD)
+        const val = document.getElementById("fecha_hora").value;
+        return val ? val.split("T")[0] : "";
+    }
+
+    function obtenerFechaHora() {
+        // Para guardar en el registro: fecha y hora completas
+        const val = document.getElementById("fecha_hora").value;
+        if (!val) return "";
+        const [f, h] = val.split("T");
+        return h ? `${f} ${h}` : f;
+    }
+
+    // ── ③ Servicentro con agregar ──────────────────────────────────────
+    function renderizarServicentros() {
+        const sel = document.getElementById("servicentro-select");
+        const valorActual = sel.value;
+        sel.innerHTML = `<option value="">Seleccionar...</option>` +
+            servicentros.map(s => `<option value="${s}"${valorActual===s?' selected':''}>${s}</option>`).join("");
+    }
+
+    function toggleAgregarServ() {
+        const form = document.getElementById("add-serv-form");
+        form.classList.toggle("visible");
+        if (form.classList.contains("visible")) {
+            document.getElementById("nuevo-serv-input").focus();
+        }
+    }
+
+    function confirmarNuevoServ() {
+        const input = document.getElementById("nuevo-serv-input");
+        const nombre = input.value.trim();
+        if (!nombre) return;
+        if (!servicentros.includes(nombre)) {
+            servicentros.push(nombre);
+            renderizarServicentros();
+            // Seleccionar el recién agregado
+            document.getElementById("servicentro-select").value = nombre;
+        }
+        input.value = "";
+        document.getElementById("add-serv-form").classList.remove("visible");
+    }
+
+    // ── ④ Conversión ARS → CLP ─────────────────────────────────────────
+    function calcularConversion() {
+        const moneda  = document.getElementById("moneda").value;
+        const litros  = parseFloat(document.getElementById("litros-cargados").value) || 0;
+        const precio  = parseFloat(document.getElementById("precio-litro").value)    || 0;
+        const tasa    = parseFloat(document.getElementById("tasa-cambio").value)     || 0.64;
+        const caja    = document.getElementById("conversion-box");
+
+        if (moneda === "ARS") {
+            caja.classList.add("visible");
+            const montoARS = litros * precio;
+            const montoCLP = montoARS * tasa;
+            document.getElementById("conv-monto-ars").textContent =
+                "$" + montoARS.toLocaleString("es-AR", {maximumFractionDigits:0});
+            document.getElementById("conv-monto-clp").textContent =
+                "$" + montoCLP.toLocaleString("es-CL", {maximumFractionDigits:0});
+        } else {
+            caja.classList.remove("visible");
+        }
+    }
+
+    // ── JSONP ──────────────────────────────────────────────────────────
     function jsonp(url) {
         return new Promise((resolve, reject) => {
-            const callbackName = "cb_" + Date.now();
+            const cbName = "cb_" + Date.now() + "_" + Math.floor(Math.random()*10000);
             const script = document.createElement("script");
-            const timeout = setTimeout(() => {
-                cleanup();
-                reject(new Error("Timeout"));
-            }, 10000);
+            const timeout = setTimeout(() => { cleanup(); reject(new Error("Timeout")); }, 12000);
 
             function cleanup() {
                 clearTimeout(timeout);
-                delete window[callbackName];
+                delete window[cbName];
                 if (script.parentNode) script.parentNode.removeChild(script);
             }
 
-            window[callbackName] = function(data) {
-                cleanup();
-                resolve(data);
-            };
-
-            script.src = `${url}&callback=${callbackName}`;
+            window[cbName] = function(data) { cleanup(); resolve(data); };
+            script.src     = url + "&callback=" + cbName;
             script.onerror = () => { cleanup(); reject(new Error("Error de red")); };
             document.head.appendChild(script);
         });
     }
 
-    // ── Consultar TTM via JSONP (sin CORS) ─────────────────────────────
+    // ── Consultar TTM ──────────────────────────────────────────────────
     async function consultarTTM() {
         const patente = document.getElementById("patente").value.trim();
-        const fecha   = document.getElementById("fecha").value;
+        const fecha   = obtenerFechaSolo();
 
         if (!patente || !fecha) {
-            mostrarEstado("error", "Ingresa la patente y la fecha antes de consultar.");
+            mostrarEstado("error", "Ingresa la patente y la fecha/hora antes de consultar.");
             return;
         }
 
         document.getElementById("show-patente").textContent = patente;
-        document.getElementById("show-fecha").textContent   = formatearFecha(fecha);
+        document.getElementById("show-fecha").textContent   =
+            formatearFechaHora(document.getElementById("fecha_hora").value);
 
         ocultarResultados();
         mostrarEstado("cargando");
@@ -310,11 +542,13 @@
 
             datosTTM = json;
 
-            document.getElementById("r-litros-final").innerHTML      = `${json.litros_final}<span class="stat-unidad"> L</span>`;
-            document.getElementById("r-litros-consumidos").innerHTML  = `${json.litros_consumidos}<span class="stat-unidad"> L</span>`;
-            document.getElementById("r-km").innerHTML                 = `${parseFloat(json.km_recorridos).toFixed(0)}<span class="stat-unidad"> km</span>`;
-            document.getElementById("r-rendimiento").innerHTML        = `${json.rendimiento ?? "—"}<span class="stat-unidad"> km/L</span>`;
-            document.getElementById("r-odometro").innerHTML           = `${parseFloat(json.odometro_final).toLocaleString("es-CL")}<span class="stat-unidad"> km</span>`;
+            document.getElementById("r-litros-final").innerHTML     = `${json.litros_final}<span class="stat-unidad"> L</span>`;
+            document.getElementById("r-litros-consumidos").innerHTML = `${json.litros_consumidos}<span class="stat-unidad"> L</span>`;
+            document.getElementById("r-km").innerHTML                = `${parseFloat(json.km_recorridos).toFixed(0)}<span class="stat-unidad"> km</span>`;
+            document.getElementById("r-rendimiento").innerHTML       = `${json.rendimiento ?? "—"}<span class="stat-unidad"> km/L</span>`;
+
+            // ③ Odómetro editable con valor de TTM precargado
+            document.getElementById("r-odometro-input").value = json.odometro_final || "";
 
             ocultarEstados();
             document.getElementById("resultado-section").classList.add("visible");
@@ -329,21 +563,27 @@
         document.getElementById("btn-consultar").disabled = false;
     }
 
-    // ── Guardar via JSONP (mismo mecanismo que consultar) ──────────────
+    // ── Guardar ────────────────────────────────────────────────────────
     async function guardarRegistro() {
         const id_control      = document.getElementById("id_control").value.trim();
         const patente         = document.getElementById("patente").value.trim();
-        const fecha           = document.getElementById("fecha").value;
-        const tramo           = document.getElementById("tramo").value;
+        const fecha_hora_val  = document.getElementById("fecha_hora").value;
+        const tramos          = obtenerTramos();
         const litros_cargados = document.getElementById("litros-cargados").value || "0";
         const precio          = document.getElementById("precio-litro").value    || "0";
         const moneda          = document.getElementById("moneda").value;
         const tipo_carga      = document.getElementById("tipo-carga").value;
-        const servicentro     = document.getElementById("servicentro").value.trim();
+        const servicentro     = document.getElementById("servicentro-select").value;
         const notas           = document.getElementById("notas").value.trim();
+        const odometro_edit   = document.getElementById("r-odometro-input").value || "";
 
-        if (!id_control || !patente || !fecha || !tramo) {
-            alert("Completa al menos: ID Control, Patente, Fecha y Tramo.");
+        // Conversión ARS→CLP
+        const tasa     = parseFloat(document.getElementById("tasa-cambio").value) || 0.64;
+        const montoARS = parseFloat(litros_cargados) * parseFloat(precio);
+        const montoCLP = moneda === "ARS" ? (montoARS * tasa).toFixed(0) : "";
+
+        if (!id_control || !patente || !fecha_hora_val || !tramos) {
+            alert("Completa al menos: ID Control, Patente, Fecha/Hora y al menos un Tramo.");
             return;
         }
 
@@ -352,51 +592,75 @@
         btn.textContent = "Guardando...";
 
         try {
-            // Construir URL con todos los parámetros
-            const params = new URLSearchParams({
-                accion:            "guardar",
+            const queryParams = new URLSearchParams({
+                accion:             "guardar",
                 id_control,
                 patente,
-                fecha,
-                tramo,
+                fecha:              obtenerFechaHora(),   // fecha + hora si existe
+                tramo:              tramos,
                 tipo_carga,
                 servicentro,
                 moneda,
                 litros_cargados,
                 precio,
+                monto_clp:          montoCLP,             // conversión ARS→CLP
+                tasa_cambio:        moneda === "ARS" ? tasa : "",
                 notas,
                 litros_estanque:    datosTTM?.litros_final        ?? "",
                 litros_consumidos:  datosTTM?.litros_consumidos   ?? "",
                 km_recorridos:      datosTTM?.km_recorridos       ?? "",
                 rendimiento:        datosTTM?.rendimiento         ?? "",
-                odometro:           datosTTM?.odometro_final      ?? "",
+                odometro:           odometro_edit,         // valor editable
             });
 
-            const url  = `${APPS_SCRIPT_URL}?${params.toString()}`;
-            const resp = await jsonp(url);
+            const resp = await jsonp(`${APPS_SCRIPT_URL}?${queryParams.toString()}`);
 
             if (!resp.ok) throw new Error(resp.error || "Error al guardar");
 
+            // ── Reset completo para permitir nueva consulta ──
+            datosTTM = null;
             document.getElementById("carga-section").classList.remove("visible");
             document.getElementById("resultado-section").classList.remove("visible");
             document.getElementById("confirmacion").classList.add("visible");
 
         } catch (err) {
             alert("Error al guardar: " + err.message);
+        } finally {
+            // SIEMPRE rehabilitar el botón ← fix del bug "Guardando..." permanente
             btn.disabled    = false;
             btn.textContent = "Guardar registro";
         }
     }
 
+    // ── Nueva consulta — reset completo ───────────────────────────────
     function nuevaConsulta() {
         datosTTM = null;
+
+        // Ocultar secciones
         document.getElementById("confirmacion").classList.remove("visible");
-        ["litros-cargados","precio-litro","notas","servicentro"].forEach(id => {
+        ocultarResultados();
+        ocultarEstados();
+
+        // Limpiar campos de carga
+        ["litros-cargados","precio-litro","notas","r-odometro-input"].forEach(id => {
             document.getElementById(id).value = "";
         });
-        ocultarResultados();
+        document.getElementById("servicentro-select").value = "";
+        document.getElementById("moneda").value             = "CLP";
+        document.getElementById("tipo-carga").value         = "Crédito Servicentro";
+        document.getElementById("conversion-box").classList.remove("visible");
+
+        // Reset de tramos: dejar solo uno vacío
+        document.getElementById("tramos-container").innerHTML = "";
+        agregarTramo();
+
+        // Rehabilitar botón guardar (fix bug segunda consulta)
+        const btn = document.getElementById("btn-guardar");
+        btn.disabled    = false;
+        btn.textContent = "Guardar registro";
     }
 
+    // ── Helpers ────────────────────────────────────────────────────────
     function mostrarEstado(tipo, msg) {
         ocultarEstados();
         const el = document.getElementById(`estado-${tipo}`);
@@ -418,6 +682,12 @@
         if (!iso) return "——";
         const [y,m,d] = iso.split("-");
         return `${d}/${m}/${y}`;
+    }
+    function formatearFechaHora(dtLocal) {
+        // dtLocal viene como "YYYY-MM-DDTHH:MM"
+        if (!dtLocal) return "——";
+        const [fecha, hora] = dtLocal.split("T");
+        return formatearFecha(fecha) + (hora ? " " + hora : "");
     }
 </script>
 </body>
