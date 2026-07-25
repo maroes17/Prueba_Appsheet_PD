@@ -329,14 +329,14 @@
         document.getElementById("btn-consultar").disabled = false;
     }
 
-    // ── Guardar via Apps Script POST ────────────────────────────────────
+    // ── Guardar via JSONP (mismo mecanismo que consultar) ──────────────
     async function guardarRegistro() {
         const id_control      = document.getElementById("id_control").value.trim();
         const patente         = document.getElementById("patente").value.trim();
         const fecha           = document.getElementById("fecha").value;
         const tramo           = document.getElementById("tramo").value;
-        const litros_cargados = document.getElementById("litros-cargados").value;
-        const precio          = document.getElementById("precio-litro").value;
+        const litros_cargados = document.getElementById("litros-cargados").value || "0";
+        const precio          = document.getElementById("precio-litro").value    || "0";
         const moneda          = document.getElementById("moneda").value;
         const tipo_carga      = document.getElementById("tipo-carga").value;
         const servicentro     = document.getElementById("servicentro").value.trim();
@@ -351,31 +351,38 @@
         btn.disabled    = true;
         btn.textContent = "Guardando...";
 
-        const payload = {
-            id_control, patente, fecha, tramo,
-            litros_cargados, precio, moneda, tipo_carga, servicentro, notas,
-            litros_estanque:   datosTTM?.litros_final        ?? "",
-            litros_consumidos: datosTTM?.litros_consumidos   ?? "",
-            km_recorridos:     datosTTM?.km_recorridos       ?? "",
-            odometro:          datosTTM?.odometro_final      ?? "",
-            rendimiento:       datosTTM?.rendimiento         ?? "",
-        };
-
         try {
-            const resp = await fetch(APPS_SCRIPT_URL, {
-                method:  "POST",
-                mode:    "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body:    JSON.stringify(payload)
+            // Construir URL con todos los parámetros
+            const params = new URLSearchParams({
+                accion:            "guardar",
+                id_control,
+                patente,
+                fecha,
+                tramo,
+                tipo_carga,
+                servicentro,
+                moneda,
+                litros_cargados,
+                precio,
+                notas,
+                litros_estanque:    datosTTM?.litros_final        ?? "",
+                litros_consumidos:  datosTTM?.litros_consumidos   ?? "",
+                km_recorridos:      datosTTM?.km_recorridos       ?? "",
+                rendimiento:        datosTTM?.rendimiento         ?? "",
+                odometro:           datosTTM?.odometro_final      ?? "",
             });
 
-            // no-cors no permite leer la respuesta — si no hay excepción, asumimos éxito
+            const url  = `${APPS_SCRIPT_URL}?${params.toString()}`;
+            const resp = await jsonp(url);
+
+            if (!resp.ok) throw new Error(resp.error || "Error al guardar");
+
             document.getElementById("carga-section").classList.remove("visible");
             document.getElementById("resultado-section").classList.remove("visible");
             document.getElementById("confirmacion").classList.add("visible");
 
         } catch (err) {
-            alert("Error al guardar. Verifica tu conexión.");
+            alert("Error al guardar: " + err.message);
             btn.disabled    = false;
             btn.textContent = "Guardar registro";
         }
