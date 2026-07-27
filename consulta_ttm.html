@@ -197,7 +197,7 @@
         <div class="form-row" style="margin-top:14px;">
             <div class="form-group">
                 <label id="label-patente">Patente</label>
-                <input type="text" id="patente" placeholder="Ej: FXRX64">
+                <input type="text" id="patente" placeholder="Ej: FXRX64" oninput="this.value = this.value.replace(/-/g, '')">
             </div>
             <div class="form-group">
                 <label>N° Control</label>
@@ -377,19 +377,21 @@
 
     // Opciones de tramo disponibles
     const TRAMOS_OPCIONES = [
-        "Chile → Mendoza",
-        "Mendoza → Buenos Aires",
-        "Buenos Aires → Mendoza",
-        "Mendoza → San Antonio",
         "San Antonio → Mendoza",
-        "Mendoza → Chile",
+        "Mendoza → San Antonio",
+        "Mendoza → Valparaíso → San Antonio",
+        "Mendoza → Buenos Aires",
+        "Mendoza → Buenos Aires → Mendoza",
+        "Buenos Aires → Mendoza",
+        "San Antonio → Mendoza → San Antonio",
+        "San Antonio → Valparaíso → Mendoza",
     ];
 
     // Se sobrescribe si AppSheet envía la lista por URL (parámetro tramos_disponibles)
     let TRAMOS_ACTIVOS = [...TRAMOS_OPCIONES];
 
     // Servicentros guardados en memoria (se pueden agregar durante la sesión)
-    let servicentros = ["Copa Petróleo", "YPF", "Shell", "Petrobras", "COPEC", "Otro"];
+    let servicentros = ["Dapsa", "YPF", "Shell", "Petrobras", "COPEC", "Otro"];
 
     let datosTTM = null;
     let tipoEquipo = "tracto";   // 'tracto' o 'genset'
@@ -459,8 +461,9 @@
         controlNombreDisplay = params.get("control_nombre")    || idControlReal || "";
 
         // ── Patentes: solo texto para mostrar y consultar TTM ──
-        patenteTracto = params.get("patente_tracto") || params.get("patente") || "";
-        patenteGenset = params.get("patente_genset") || "";
+        // Se quita el guión "-" porque la API TTM requiere la patente sin separador
+        patenteTracto = (params.get("patente_tracto") || params.get("patente") || "").replace(/-/g, "");
+        patenteGenset = (params.get("patente_genset") || "").replace(/-/g, "");
 
         // ── Tramos dinámicos desde AppSheet ──
         // AppSheet envía: &tramos_disponibles=Chile→Mendoza,Mendoza→BsAs,...
@@ -687,10 +690,13 @@
         // ID real del equipo según el tab activo — esto es lo que va al Sheet
         const idEquipoReal = tipoEquipo === "tracto" ? idVehiculoReal : idSemirremolqueReal;
 
-        // Conversión ARS→CLP
-        const tasa     = parseFloat(document.getElementById("tasa-cambio").value) || 0.64;
-        const montoARS = parseFloat(litros_cargados) * parseFloat(precio);
-        const montoCLP = moneda === "ARS" ? (montoARS * tasa).toFixed(0) : "";
+        // Monto en CLP: si la carga ya es en CLP, es el mismo monto.
+        // Si es en ARS, se convierte usando la tasa de cambio.
+        const tasa       = parseFloat(document.getElementById("tasa-cambio").value) || 0.64;
+        const montoOriginal = parseFloat(litros_cargados) * parseFloat(precio);
+        const montoCLP   = moneda === "ARS"
+            ? (montoOriginal * tasa).toFixed(0)
+            : montoOriginal.toFixed(0);
 
         if (!idControlReal || !patente || !fecha_hora_val || !tramos) {
             alert("Completa al menos: N° Control, Patente, Fecha/Hora y al menos un Tramo.");
@@ -714,7 +720,7 @@
                 moneda,
                 litros_cargados,
                 precio,
-                monto_clp:          montoCLP,             // conversión ARS→CLP
+                monto_clp:          montoCLP,             // siempre en CLP (directo o convertido)
                 tasa_cambio:        moneda === "ARS" ? tasa : "",
                 notas,
                 litros_estanque:    datosTTM?.litros_final        ?? "",
