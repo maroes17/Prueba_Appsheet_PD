@@ -200,8 +200,8 @@
                 <input type="text" id="patente" placeholder="Ej: FXRX64">
             </div>
             <div class="form-group">
-                <label>ID Control</label>
-                <input type="text" id="id_control" placeholder="Ej: 8401">
+                <label>N° Control</label>
+                <input type="text" id="id_control" placeholder="Ej: 8401" readonly>
             </div>
         </div>
 
@@ -373,7 +373,7 @@
 </div>
 
 <script>
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1uuqk4fJk0H6i9GfCCEMAq-EFZnnx8gskCAQ9T85T-WWLrIHjyyylhIyk-Jm8w31toQ/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzj-uDJlqgFaNmdkqs2DqQr-QiAP4ACB6e8S6fVla9E/exec";
 
     // Opciones de tramo disponibles
     const TRAMOS_OPCIONES = [
@@ -393,8 +393,12 @@
 
     let datosTTM = null;
     let tipoEquipo = "tracto";   // 'tracto' o 'genset'
-    let patenteTracto = "";      // patente del tractocamión (desde AppSheet)
-    let patenteGenset = "";      // patente del semirremolque (desde AppSheet)
+    let patenteTracto = "";      // patente del tractocamión — solo para mostrar y consultar TTM
+    let patenteGenset = "";      // patente del semirremolque — solo para mostrar
+    let idVehiculoReal = "";       // ID_Vehiculo real — esto es lo que se guarda en Sheet
+    let idSemirremolqueReal = "";  // ID_Semirremolque real — esto es lo que se guarda en Sheet
+    let idControlReal = "";        // ID_Control real — esto es lo que se guarda en Sheet
+    let controlNombreDisplay = ""; // Nombre/número de rendición — solo para mostrar
 
     // ── Selector Tractocamión / Genset ──────────────────────────────────
     function seleccionarTipoEquipo(tipo) {
@@ -426,12 +430,11 @@
     // ── Genset: salta la consulta TTM y va directo a cargar ────────────
     function irACargaGenset() {
         const patente = document.getElementById("patente").value.trim();
-        const id_control = document.getElementById("id_control").value.trim();
         const fechaHora = document.getElementById("fecha_hora").value;
         const tramos = obtenerTramos();
 
-        if (!patente || !id_control || !fechaHora || !tramos) {
-            alert("Completa: Patente, ID Control, Fecha/Hora y al menos un Tramo.");
+        if (!patente || !idControlReal || !fechaHora || !tramos) {
+            alert("Completa: Patente, N° Control, Fecha/Hora y al menos un Tramo.");
             return;
         }
 
@@ -446,11 +449,16 @@
 
     // ── Al cargar ──────────────────────────────────────────────────────
     document.addEventListener("DOMContentLoaded", function () {
-        const params     = new URLSearchParams(window.location.search);
-        const fecha      = params.get("fecha")      || hoy();
-        const id_control = params.get("id_control") || "";
+        const params = new URLSearchParams(window.location.search);
+        const fecha  = params.get("fecha") || hoy();
 
-        // ── Patentes: tractocamión y semirremolque llegan por separado ──
+        // ── IDs reales (para guardar en Sheet) ──
+        idControlReal        = params.get("id_control")       || "";
+        idVehiculoReal        = params.get("id_vehiculo")       || "";
+        idSemirremolqueReal   = params.get("id_semirremolque")  || "";
+        controlNombreDisplay = params.get("control_nombre")    || idControlReal || "";
+
+        // ── Patentes: solo texto para mostrar y consultar TTM ──
         patenteTracto = params.get("patente_tracto") || params.get("patente") || "";
         patenteGenset = params.get("patente_genset") || "";
 
@@ -468,7 +476,8 @@
         }
 
         document.getElementById("patente").value    = patenteTracto;
-        document.getElementById("id_control").value = id_control;
+        // El campo "ID Control" ahora muestra el nombre/número legible, no el ID interno
+        document.getElementById("id_control").value = controlNombreDisplay;
         document.getElementById("show-patente").textContent = patenteTracto || "——";
 
         // Fecha/hora inicial: si viene fecha por URL, la combina con hora actual
@@ -659,7 +668,6 @@
 
     // ── Guardar ────────────────────────────────────────────────────────
     async function guardarRegistro() {
-        const id_control      = document.getElementById("id_control").value.trim();
         const patente         = document.getElementById("patente").value.trim();
         const fecha_hora_val  = document.getElementById("fecha_hora").value;
         const tramos          = obtenerTramos();
@@ -676,13 +684,16 @@
             ? (document.getElementById("horometro-input").value || "")
             : "";
 
+        // ID real del equipo según el tab activo — esto es lo que va al Sheet
+        const idEquipoReal = tipoEquipo === "tracto" ? idVehiculoReal : idSemirremolqueReal;
+
         // Conversión ARS→CLP
         const tasa     = parseFloat(document.getElementById("tasa-cambio").value) || 0.64;
         const montoARS = parseFloat(litros_cargados) * parseFloat(precio);
         const montoCLP = moneda === "ARS" ? (montoARS * tasa).toFixed(0) : "";
 
-        if (!id_control || !patente || !fecha_hora_val || !tramos) {
-            alert("Completa al menos: ID Control, Patente, Fecha/Hora y al menos un Tramo.");
+        if (!idControlReal || !patente || !fecha_hora_val || !tramos) {
+            alert("Completa al menos: N° Control, Patente, Fecha/Hora y al menos un Tramo.");
             return;
         }
 
@@ -693,8 +704,8 @@
         try {
             const queryParams = new URLSearchParams({
                 accion:             "guardar",
-                id_control,
-                patente,
+                id_control:         idControlReal,        // ← solo el ID (relación con Controles)
+                id_equipo:          idEquipoReal,          // ← solo el ID (relación con Vehiculo/Semirremolque)
                 tipo_equipo:        tipoEquipo,           // 'tracto' o 'genset'
                 fecha:              obtenerFechaHora(),   // fecha + hora si existe
                 tramo:              tramos,
