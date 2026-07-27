@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Combustible — Romanesco</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: 'Arial', sans-serif;
+        background: #f0f2f5;
+        min-height: 100vh;
+        padding: 20px 16px 40px;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+
+    .header { display:flex; align-items:center; gap:10px; margin-bottom:20px; }
+    .header-logo { font-size:18px; font-weight:900; text-transform:uppercase; letter-spacing:1.5px; color:#111; }
+    .header-sub  { font-size:10px; letter-spacing:3px; color:#666; text-transform:uppercase; }
+    .header-divider { width:1px; height:36px; background:#ccc; margin:0 4px; }
+    .header-title { font-size:13px; color:#444; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; }
+
+    .filtros-card {
+        background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08);
+        padding:18px 20px; margin-bottom:20px;
+    }
+    .filtros-titulo { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:bold; margin-bottom:12px; }
+    .filtros-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin-bottom:12px; }
+    .filtros-grid label { display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:#888; font-weight:bold; margin-bottom:4px; }
+    select, input[type="date"] {
+        width:100%; border:1.5px solid #ddd; border-radius:8px; padding:9px 10px;
+        font-size:13px; color:#111; background:#fafafa; outline:none;
+    }
+    select:focus, input:focus { border-color:#1a1a2e; background:white; }
+    .btn-filtrar {
+        background:#1a1a2e; color:white; border:none; border-radius:8px;
+        padding:10px 20px; font-size:13px; font-weight:bold; cursor:pointer;
+    }
+    .btn-filtrar:hover { background:#2d2d4e; }
+    .btn-limpiar {
+        background:transparent; color:#888; border:1.5px solid #ddd; border-radius:8px;
+        padding:10px 20px; font-size:13px; font-weight:bold; cursor:pointer; margin-left:8px;
+    }
+
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:20px; }
+    .stat-card {
+        background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08);
+        padding:18px 20px; border-left:4px solid #1a1a2e;
+    }
+    .stat-card.acento-naranja { border-left-color:#e67e22; }
+    .stat-card.acento-verde   { border-left-color:#16a34a; }
+    .stat-card.acento-azul    { border-left-color:#2563eb; }
+    .stat-label { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:bold; margin-bottom:6px; }
+    .stat-valor { font-size:26px; font-weight:900; color:#111; }
+    .stat-unidad { font-size:13px; color:#888; font-weight:normal; margin-left:3px; }
+
+    .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+    .chart-card {
+        background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08);
+        padding:18px 20px;
+    }
+    .chart-card.full { grid-column:1 / -1; }
+    .chart-titulo { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:bold; margin-bottom:14px; }
+    .chart-container { position:relative; height:260px; }
+
+    .tabla-card {
+        background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08);
+        padding:18px 20px; overflow-x:auto;
+    }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    thead th {
+        background:#1a1a2e; color:white; text-align:left; padding:9px 12px;
+        font-size:11px; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap;
+    }
+    thead th.num { text-align:right; }
+    tbody td { padding:8px 12px; border-bottom:1px solid #eee; white-space:nowrap; }
+    tbody td.num { text-align:right; font-weight:bold; }
+    tbody tr:nth-child(even) { background:#f8f9fb; }
+    tbody tr:hover { background:#f0f4ff; }
+
+    .estado-msg { text-align:center; padding:40px 20px; color:#888; font-size:14px; }
+    .spinner {
+        width:24px; height:24px; border:3px solid #1a1a2e; border-top-color:transparent;
+        border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 12px;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    @media (max-width: 720px) { .charts-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+    <div class="header">
+        <div>
+            <div class="header-logo">Romanesco</div>
+            <div class="header-sub">Transportes</div>
+        </div>
+        <div class="header-divider"></div>
+        <div class="header-title">Dashboard de<br>Combustible</div>
+    </div>
+
+    <div class="filtros-card">
+        <div class="filtros-titulo">Filtros</div>
+        <div class="filtros-grid">
+            <div>
+                <label>Tramo</label>
+                <select id="f-tramo"><option value="">Todos</option></select>
+            </div>
+            <div>
+                <label>Control (viaje)</label>
+                <select id="f-control"><option value="">Todos</option></select>
+            </div>
+            <div>
+                <label>Chofer</label>
+                <select id="f-chofer"><option value="">Todos</option></select>
+            </div>
+            <div>
+                <label>Desde</label>
+                <input type="date" id="f-desde">
+            </div>
+            <div>
+                <label>Hasta</label>
+                <input type="date" id="f-hasta">
+            </div>
+        </div>
+        <button class="btn-filtrar" onclick="cargarDashboard()">Aplicar filtros</button>
+        <button class="btn-limpiar" onclick="limpiarFiltros()">Limpiar</button>
+    </div>
+
+    <div class="estado-msg" id="estado-cargando">
+        <div class="spinner"></div>
+        Cargando datos del dashboard...
+    </div>
+
+    <div id="contenido" style="display:none;">
+
+        <div class="stats-grid">
+            <div class="stat-card acento-naranja">
+                <div class="stat-label">Dinero gastado</div>
+                <div class="stat-valor" id="stat-monto">$0<span class="stat-unidad">CLP</span></div>
+            </div>
+            <div class="stat-card acento-azul">
+                <div class="stat-label">Litros consumidos</div>
+                <div class="stat-valor" id="stat-litros">0<span class="stat-unidad">L</span></div>
+            </div>
+            <div class="stat-card acento-verde">
+                <div class="stat-label">Distancia recorrida</div>
+                <div class="stat-valor" id="stat-km">0<span class="stat-unidad">km</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Rendimiento promedio</div>
+                <div class="stat-valor" id="stat-rendimiento">—<span class="stat-unidad">km/L</span></div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-titulo">Litros por tramo</div>
+                <div class="chart-container"><canvas id="chart-tramo-litros"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-titulo">Rendimiento (km/L) por tramo</div>
+                <div class="chart-container"><canvas id="chart-tramo-rendimiento"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-titulo">Gasto CLP por chofer</div>
+                <div class="chart-container"><canvas id="chart-chofer-monto"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-titulo">Rendimiento (km/L) por chofer</div>
+                <div class="chart-container"><canvas id="chart-chofer-rendimiento"></canvas></div>
+            </div>
+            <div class="chart-card full">
+                <div class="chart-titulo">Gasto CLP por control (viaje)</div>
+                <div class="chart-container"><canvas id="chart-control-monto"></canvas></div>
+            </div>
+        </div>
+
+        <div class="tabla-card">
+            <div class="chart-titulo">Detalle por control</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>N° Control</th>
+                        <th>Chofer</th>
+                        <th class="num">Cargas</th>
+                        <th class="num">Litros</th>
+                        <th class="num">Gasto CLP</th>
+                        <th class="num">Km</th>
+                        <th class="num">Rend. km/L</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body"></tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxkCU-XZe5q2CPI92MkQgT88C1AnzoriwkddHDLsaZZbaOBmXCg4AsFuYFWyjxisw-S_w/exec";
+
+    const COLOR_PRIMARIO = "#1a1a2e";
+    const COLOR_NARANJA  = "#e67e22";
+    const COLOR_AZUL     = "#2563eb";
+    const COLOR_VERDE    = "#16a34a";
+    const PALETA         = ["#1a1a2e","#e67e22","#2563eb","#16a34a","#c026d3","#0891b2","#ca8a04","#dc2626"];
+
+    let charts = {};
+
+    function jsonp(url) {
+        return new Promise((resolve, reject) => {
+            const cbName = "cb_" + Date.now() + "_" + Math.floor(Math.random()*10000);
+            const script = document.createElement("script");
+            const timeout = setTimeout(() => { cleanup(); reject(new Error("Timeout")); }, 15000);
+
+            function cleanup() {
+                clearTimeout(timeout);
+                delete window[cbName];
+                if (script.parentNode) script.parentNode.removeChild(script);
+            }
+
+            window[cbName] = function(data) { cleanup(); resolve(data); };
+            script.src     = url + "&callback=" + cbName;
+            script.onerror = () => { cleanup(); reject(new Error("Error de red")); };
+            document.head.appendChild(script);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", cargarDashboard);
+
+    async function cargarDashboard() {
+        document.getElementById("estado-cargando").style.display = "block";
+        document.getElementById("contenido").style.display = "none";
+
+        const tramo   = document.getElementById("f-tramo").value;
+        const control = document.getElementById("f-control").value;
+        const chofer  = document.getElementById("f-chofer").value;
+        const desde   = document.getElementById("f-desde").value;
+        const hasta   = document.getElementById("f-hasta").value;
+
+        try {
+            const params = new URLSearchParams({
+                accion: "dashboard",
+                tramo, id_control: control, chofer,
+                fecha_desde: desde, fecha_hasta: hasta,
+            });
+
+            const data = await jsonp(`${APPS_SCRIPT_URL}?${params.toString()}`);
+
+            if (!data.ok) throw new Error(data.error || "Error al cargar datos");
+
+            poblarFiltros(data.filtros_disponibles);
+            renderizarStats(data.totales);
+            renderizarCharts(data);
+            renderizarTabla(data.por_control);
+
+            document.getElementById("estado-cargando").style.display = "none";
+            document.getElementById("contenido").style.display = "block";
+
+        } catch (err) {
+            document.getElementById("estado-cargando").innerHTML =
+                `⚠ No se pudieron cargar los datos: ${err.message}`;
+        }
+    }
+
+    function limpiarFiltros() {
+        document.getElementById("f-tramo").value = "";
+        document.getElementById("f-control").value = "";
+        document.getElementById("f-chofer").value = "";
+        document.getElementById("f-desde").value = "";
+        document.getElementById("f-hasta").value = "";
+        cargarDashboard();
+    }
+
+    let filtrosYaPoblados = false;
+    function poblarFiltros(disponibles) {
+        if (filtrosYaPoblados) return;
+        filtrosYaPoblados = true;
+
+        const selTramo = document.getElementById("f-tramo");
+        disponibles.tramos.forEach(t => {
+            selTramo.innerHTML += `<option value="${t}">${t}</option>`;
+        });
+
+        const selControl = document.getElementById("f-control");
+        disponibles.controles.forEach(c => {
+            selControl.innerHTML += `<option value="${c.id}">${c.detalle}</option>`;
+        });
+
+        const selChofer = document.getElementById("f-chofer");
+        disponibles.choferes.forEach(c => {
+            selChofer.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+    }
+
+    function fmt(n) { return Math.round(n).toLocaleString("es-CL"); }
+
+    function renderizarStats(t) {
+        document.getElementById("stat-monto").innerHTML       = `$${fmt(t.monto_clp)}<span class="stat-unidad">CLP</span>`;
+        document.getElementById("stat-litros").innerHTML      = `${fmt(t.litros)}<span class="stat-unidad">L</span>`;
+        document.getElementById("stat-km").innerHTML          = `${fmt(t.km)}<span class="stat-unidad">km</span>`;
+        document.getElementById("stat-rendimiento").innerHTML = t.rendimiento_promedio
+            ? `${t.rendimiento_promedio}<span class="stat-unidad">km/L</span>`
+            : `—<span class="stat-unidad">km/L</span>`;
+    }
+
+    function destruirChart(id) {
+        if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+    }
+
+    function renderizarCharts(data) {
+        destruirChart("tramoLitros");
+        charts.tramoLitros = new Chart(document.getElementById("chart-tramo-litros"), {
+            type: "bar",
+            data: {
+                labels: data.por_tramo.map(x => x.nombre),
+                datasets: [{ data: data.por_tramo.map(x => x.litros), backgroundColor: COLOR_AZUL, borderRadius: 6 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+        });
+
+        destruirChart("tramoRend");
+        charts.tramoRend = new Chart(document.getElementById("chart-tramo-rendimiento"), {
+            type: "bar",
+            data: {
+                labels: data.por_tramo.map(x => x.nombre),
+                datasets: [{ data: data.por_tramo.map(x => x.rendimiento_promedio || 0), backgroundColor: COLOR_VERDE, borderRadius: 6 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+        });
+
+        destruirChart("choferMonto");
+        charts.choferMonto = new Chart(document.getElementById("chart-chofer-monto"), {
+            type: "bar",
+            data: {
+                labels: data.por_chofer.map(x => x.nombre),
+                datasets: [{ data: data.por_chofer.map(x => x.monto_clp), backgroundColor: COLOR_NARANJA, borderRadius: 6 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false}} }
+        });
+
+        destruirChart("choferRend");
+        charts.choferRend = new Chart(document.getElementById("chart-chofer-rendimiento"), {
+            type: "bar",
+            data: {
+                labels: data.por_chofer.map(x => x.nombre),
+                datasets: [{ data: data.por_chofer.map(x => x.rendimiento_promedio || 0), backgroundColor: COLOR_PRIMARIO, borderRadius: 6 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false}} }
+        });
+
+        destruirChart("controlMonto");
+        charts.controlMonto = new Chart(document.getElementById("chart-control-monto"), {
+            type: "bar",
+            data: {
+                labels: data.por_control.map(x => x.nombre),
+                datasets: [{ data: data.por_control.map(x => x.monto_clp), backgroundColor: PALETA, borderRadius: 6 }]
+            },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+        });
+    }
+
+    function renderizarTabla(porControl) {
+        const tbody = document.getElementById("tabla-body");
+        if (porControl.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">Sin datos para los filtros aplicados</td></tr>`;
+            return;
+        }
+        tbody.innerHTML = porControl.map(c => `
+            <tr>
+                <td><strong>${c.nombre}</strong></td>
+                <td>${c.chofer || "—"}</td>
+                <td class="num">${c.cargas}</td>
+                <td class="num">${c.litros.toLocaleString("es-CL")}</td>
+                <td class="num">$${fmt(c.monto_clp)}</td>
+                <td class="num">${c.km.toLocaleString("es-CL")}</td>
+                <td class="num">${c.rendimiento_promedio ?? "—"}</td>
+            </tr>
+        `).join("");
+    }
+</script>
+</body>
+</html>
