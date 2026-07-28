@@ -186,6 +186,7 @@
                     <tr>
                         <th>N° Control</th>
                         <th>Chofer</th>
+                        <th class="num">Viajes</th>
                         <th class="num">Cargas</th>
                         <th class="num">Litros</th>
                         <th class="num">Gasto CLP</th>
@@ -367,13 +368,14 @@
     function renderizarTabla(porControl) {
         const tbody = document.getElementById("tabla-body");
         if (porControl.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">Sin datos para los filtros aplicados</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#999;padding:20px;">Sin datos para los filtros aplicados</td></tr>`;
             return;
         }
         tbody.innerHTML = porControl.map(c => `
             <tr>
                 <td><strong>${c.nombre}</strong></td>
                 <td>${c.chofer || "—"}</td>
+                <td class="num">${c.viajes ?? "—"}</td>
                 <td class="num">${c.cargas}</td>
                 <td class="num">${c.litros.toLocaleString("es-CL")}</td>
                 <td class="num">$${fmt(c.monto_clp)}</td>
