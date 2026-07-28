@@ -210,6 +210,12 @@
             <div class="form-group full">
                 <label>Fecha y hora de consulta</label>
                 <input type="datetime-local" id="fecha_hora">
+                <div style="font-size:11px; color:#888; margin-top:4px; line-height:1.4;">
+                    ⚠ El sistema de telemetría es argentino y usa la medianoche de
+                    Argentina como corte del día. Si consultas cerca de la
+                    medianoche chilena, prueba también con el día siguiente
+                    o anterior si el resultado no coincide.
+                </div>
             </div>
         </div>
 
@@ -795,7 +801,15 @@
             document.getElementById(id).classList.remove("visible")
         );
     }
-    function hoy() { return new Date().toISOString().split("T")[0]; }
+    // Antes usaba toISOString() (UTC), lo que podía desfasar el día
+    // según la hora. Ahora usa los componentes de fecha LOCALES.
+    function hoy() {
+        const d = new Date();
+        const yyyy = d.getFullYear();
+        const mm   = String(d.getMonth() + 1).padStart(2, "0");
+        const dd   = String(d.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+    }
     function formatearFecha(iso) {
         if (!iso) return "——";
         const [y,m,d] = iso.split("-");
