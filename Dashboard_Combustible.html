@@ -186,7 +186,7 @@
                     <tr>
                         <th>N° Control</th>
                         <th>Chofer</th>
-                        <th class="num">Viajes</th>
+                        <th>Viajes</th>
                         <th class="num">Cargas</th>
                         <th class="num">Litros</th>
                         <th class="num">Gasto CLP</th>
@@ -375,7 +375,7 @@
             <tr>
                 <td><strong>${c.nombre}</strong></td>
                 <td>${c.chofer || "—"}</td>
-                <td class="num">${c.viajes ?? "—"}</td>
+                <td>${c.viajes || "—"}</td>
                 <td class="num">${c.cargas}</td>
                 <td class="num">${c.litros.toLocaleString("es-CL")}</td>
                 <td class="num">$${fmt(c.monto_clp)}</td>
