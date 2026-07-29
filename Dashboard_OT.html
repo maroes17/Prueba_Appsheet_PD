@@ -65,7 +65,6 @@
     .chart-card {
         background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08);
         padding:18px 20px;
-        margin-bottom: 20px;
     }
     .chart-card.full { grid-column:1 / -1; }
     .chart-titulo-row { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
@@ -280,7 +279,18 @@
         </div>
 
         <div class="tabla-card">
-            <div class="chart-titulo">Top 10 vehículos por costo acumulado (clic en una fila para ver sus repuestos)</div>
+            <div class="chart-titulo-row">
+                <div class="chart-titulo" id="titulo-tabla-vehiculos">Top 10 vehículos por costo acumulado (clic en una fila para ver sus repuestos)</div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <label style="font-size:10px;text-transform:uppercase;color:#888;font-weight:bold;margin:0;">Mostrar</label>
+                    <select id="f-limite-filas" style="width:auto;padding:5px 8px;" onchange="cargarDashboard()">
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="500">Todas</option>
+                    </select>
+                </div>
+            </div>
             <table>
                 <thead>
                     <tr>
@@ -379,6 +389,7 @@
         const semirremolque  = document.getElementById("f-semirremolque").value;
         const desde          = document.getElementById("f-desde").value;
         const hasta           = document.getElementById("f-hasta").value;
+        const limiteFilas    = document.getElementById("f-limite-filas").value;
 
         try {
             const params = new URLSearchParams({
@@ -386,6 +397,7 @@
                 taller, tipoMaquina: tipo, estado, diagnostico,
                 vehiculo, semirremolque,
                 fechaDesde: desde, fechaHasta: hasta,
+                limiteFilas,
             });
 
             const resp = await jsonp(`${APPS_SCRIPT_URL}?${params.toString()}`);
@@ -398,7 +410,7 @@
             renderizarStats(data.kpis);
             renderizarChartPeriodo(data);
             renderizarChartsSecundarios(data);
-            renderizarTablaVehiculos(data.topVehiculos);
+            renderizarTablaVehiculos(data.topVehiculos, data.totalOrdenesFiltradas);
             renderizarTablaChoferes(data.topChoferes);
 
             document.getElementById("estado-cargando").style.display = "none";
@@ -413,6 +425,7 @@
     function limpiarFiltros() {
         ["f-taller","f-tipo","f-estado","f-diagnostico","f-vehiculo","f-semirremolque","f-desde","f-hasta"]
             .forEach(id => document.getElementById(id).value = "");
+        document.getElementById("f-limite-filas").value = "10";
         cargarDashboard();
     }
 
@@ -538,7 +551,15 @@
         return String(texto || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
-    function renderizarTablaVehiculos(topVehiculos) {
+    function renderizarTablaVehiculos(topVehiculos, totalOrdenesFiltradas) {
+        const titulo = document.getElementById("titulo-tabla-vehiculos");
+        const cantidadMostrada = (topVehiculos || []).length;
+        if (totalOrdenesFiltradas && totalOrdenesFiltradas > cantidadMostrada) {
+            titulo.textContent = `Mostrando ${cantidadMostrada} de ${totalOrdenesFiltradas} OT por costo acumulado — usa "Mostrar" o los filtros (ej: Vehículo) para ver el resto`;
+        } else {
+            titulo.textContent = `Mostrando ${cantidadMostrada} de ${totalOrdenesFiltradas || cantidadMostrada} OT por costo acumulado (clic en una fila para ver sus repuestos)`;
+        }
+
         const tbody = document.getElementById("tabla-vehiculos");
         if (!topVehiculos || topVehiculos.length === 0) {
             tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">Sin datos para los filtros aplicados</td></tr>`;
