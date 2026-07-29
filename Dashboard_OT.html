@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Órdenes de Trabajo — Romanesco</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -71,6 +72,7 @@
     .chart-titulo-row { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
     .chart-titulo { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:bold; }
     .chart-container { position:relative; height:260px; }
+    .chart-container.alto { height:320px; }
 
     .tabs-periodo { display:flex; gap:6px; }
     .tab-btn {
@@ -232,7 +234,7 @@
                     <button class="tab-btn" data-vista="anual" onclick="cambiarVistaPeriodo('anual')">Anual</button>
                 </div>
             </div>
-            <div class="chart-container"><canvas id="chart-periodo"></canvas></div>
+            <div class="chart-container alto"><canvas id="chart-periodo"></canvas></div>
         </div>
 
         <div class="charts-grid">
@@ -351,7 +353,18 @@
     const COLOR_NARANJA  = "#e67e22";
     const COLOR_AZUL     = "#2563eb";
     const COLOR_VERDE    = "#16a34a";
+    const COLOR_TOTAL_OT = "#e2572c";
+    const COLOR_REPUESTOS_LINEA = "#f2994a";
+    const COLOR_MANO_OBRA_LINEA = "#9b6dd6";
     const PALETA         = ["#1a1a2e","#e67e22","#2563eb","#16a34a","#c026d3","#0891b2","#ca8a04","#dc2626"];
+
+    // El plugin se registra una sola vez para todos los gráficos, pero lo
+    // dejamos apagado por defecto: solo el gráfico de "Gastos por período"
+    // lo activa explícitamente en su dataset de Costo Total.
+    if (typeof ChartDataLabels !== "undefined") {
+        Chart.register(ChartDataLabels);
+        Chart.defaults.set('plugins.datalabels', { display: false });
+    }
 
     let charts = {};
     let ultimoDataCargado = null;
@@ -479,29 +492,77 @@
         const serie = vistaPeriodo === 'anual' ? data.gastosPorAnio : data.gastosPorMes;
         destruirChart("periodo");
         charts.periodo = new Chart(document.getElementById("chart-periodo"), {
-            type: "bar",
+            type: "line",
             data: {
                 labels: serie.map(s => s.periodo),
                 datasets: [
-                    { label: "Mano de obra", data: serie.map(s => s.manoObra), backgroundColor: COLOR_AZUL, borderRadius: 4 },
-                    { label: "Repuestos",    data: serie.map(s => s.repuestos), backgroundColor: COLOR_NARANJA, borderRadius: 4 },
-                ]
+                    {
+                        label: "Costo total de OT",
+                        data: serie.map(s => s.costo),
+                        borderColor: COLOR_TOTAL_OT,
+                        backgroundColor: "rgba(226,87,44,0.12)",
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: COLOR_TOTAL_OT,
+                        borderWidth: 2,
+                        datalabels: {
+                            display: true,
+                            align: "top",
+                            anchor: "end",
+                            color: COLOR_TOTAL_OT,
+                            font: { weight: "bold", size: 11 },
+                            formatter: (valor) => "$" + fmt(valor),
+                        },
+                    },
+                    {
+                        label: "Costo Total Repuestos",
+                        data: serie.map(s => s.repuestos),
+                        borderColor: COLOR_REPUESTOS_LINEA,
+                        backgroundColor: "transparent",
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: COLOR_REPUESTOS_LINEA,
+                        borderWidth: 2,
+                    },
+                    {
+                        label: "Mano de Obra",
+                        data: serie.map(s => s.manoObra),
+                        borderColor: COLOR_MANO_OBRA_LINEA,
+                        backgroundColor: "transparent",
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: COLOR_MANO_OBRA_LINEA,
+                        borderWidth: 2,
+                    },
+                ],
             },
             options: {
-                responsive: true, maintainAspectRatio: false,
-                scales: { x: { stacked: true }, y: { stacked: true } },
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: "index", intersect: false },
+                layout: { padding: { top: 24 } },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: (valor) => valor >= 1000000 ? (valor / 1000000).toFixed(1).replace(".0", "") + " M" : fmt(valor),
+                        },
+                    },
+                },
                 plugins: {
                     legend: { display: true, position: "bottom", labels: { boxWidth: 10, font: { size: 11 } } },
                     tooltip: {
                         callbacks: {
-                            footer: (items) => {
-                                const total = items.reduce((acc, it) => acc + it.parsed.y, 0);
-                                return `Total: $${fmt(total)} CLP`;
-                            }
-                        }
-                    }
-                }
-            }
+                            label: (item) => `${item.dataset.label}: $${fmt(item.parsed.y)}`,
+                        },
+                    },
+                },
+            },
         });
     }
 
