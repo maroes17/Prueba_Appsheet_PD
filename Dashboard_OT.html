@@ -28,7 +28,7 @@
     .filtros-titulo { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:bold; margin-bottom:12px; }
     .filtros-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin-bottom:12px; }
     .filtros-grid label { display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:#888; font-weight:bold; margin-bottom:4px; }
-    select, input[type="date"] {
+    select, input[type="date"], input[type="text"] {
         width:100%; border:1.5px solid #ddd; border-radius:8px; padding:9px 10px;
         font-size:13px; color:#111; background:#fafafa; outline:none;
     }
@@ -43,18 +43,23 @@
         padding:10px 20px; font-size:13px; font-weight:bold; cursor:pointer; margin-left:8px;
     }
 
+    /* ── Stat cards (fix overflow del monto) ── */
     .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px; margin-bottom:20px; }
     .stat-card {
         background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08);
         padding:18px 20px; border-left:4px solid #1a1a2e;
+        overflow:hidden; min-width:0;
     }
     .stat-card.acento-naranja { border-left-color:#e67e22; }
     .stat-card.acento-verde   { border-left-color:#16a34a; }
     .stat-card.acento-azul    { border-left-color:#2563eb; }
     .stat-card.acento-rojo    { border-left-color:#dc2626; }
     .stat-label { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:bold; margin-bottom:6px; }
-    .stat-valor { font-size:26px; font-weight:900; color:#111; }
-    .stat-unidad { font-size:13px; color:#888; font-weight:normal; margin-left:3px; }
+    .stat-valor {
+        font-size:22px; font-weight:900; color:#111; line-height:1.2;
+        overflow-wrap: anywhere; word-break: break-word;
+    }
+    .stat-unidad { font-size:12px; color:#888; font-weight:normal; margin-left:3px; }
 
     .charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
     .chart-card {
@@ -62,8 +67,16 @@
         padding:18px 20px;
     }
     .chart-card.full { grid-column:1 / -1; }
-    .chart-titulo { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:bold; margin-bottom:14px; }
+    .chart-titulo-row { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+    .chart-titulo { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:bold; }
     .chart-container { position:relative; height:260px; }
+
+    .tabs-periodo { display:flex; gap:6px; }
+    .tab-btn {
+        background:transparent; border:1.5px solid #ddd; color:#888; border-radius:20px;
+        padding:5px 14px; font-size:12px; font-weight:bold; cursor:pointer;
+    }
+    .tab-btn.activo { background:#1a1a2e; border-color:#1a1a2e; color:white; }
 
     .tabla-card {
         background:white; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.08);
@@ -79,9 +92,10 @@
     tbody td.num { text-align:right; font-weight:bold; }
     tbody tr:nth-child(even) { background:#f8f9fb; }
     tbody tr:hover { background:#f0f4ff; }
+    tr.fila-clicable { cursor:pointer; }
     .badge { display:inline-block; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:bold; }
-    .badge.cerrada { background:#e8f5e9; color:#1b5e20; }
-    .badge.otro    { background:#fff3e0; color:#8a4b00; }
+    .badge.terminada { background:#e8f5e9; color:#1b5e20; }
+    .badge.otro      { background:#fff3e0; color:#8a4b00; }
 
     .estado-msg { text-align:center; padding:40px 20px; color:#888; font-size:14px; }
     .spinner {
@@ -90,7 +104,35 @@
     }
     @keyframes spin { to { transform:rotate(360deg); } }
 
-    @media (max-width: 720px) { .charts-grid { grid-template-columns:1fr; } }
+    /* ── Buscador de OT ── */
+    .buscador-ot { display:flex; gap:8px; align-items:end; margin-bottom:16px; flex-wrap:wrap; }
+    .buscador-ot > div { flex:1; min-width:180px; }
+
+    /* ── Modal repuestos ── */
+    .modal-overlay {
+        display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5);
+        z-index:1000; align-items:center; justify-content:center; padding:20px;
+    }
+    .modal-overlay.visible { display:flex; }
+    .modal-box {
+        background:white; border-radius:12px; max-width:720px; width:100%;
+        max-height:85vh; overflow-y:auto; padding:24px;
+    }
+    .modal-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; }
+    .modal-titulo { font-size:16px; font-weight:900; color:#111; }
+    .modal-sub { font-size:12px; color:#888; margin-top:2px; }
+    .btn-cerrar-modal {
+        background:transparent; border:none; font-size:20px; color:#888; cursor:pointer; line-height:1;
+    }
+    .modal-kpis { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:16px; }
+    .modal-kpi { background:#f8f9fb; border-radius:8px; padding:10px 12px; }
+    .modal-kpi-label { font-size:10px; text-transform:uppercase; color:#888; font-weight:bold; }
+    .modal-kpi-valor { font-size:16px; font-weight:900; color:#111; overflow-wrap:anywhere; }
+
+    @media (max-width: 720px) {
+        .charts-grid { grid-template-columns:1fr; }
+        .modal-kpis { grid-template-columns:1fr 1fr; }
+    }
 </style>
 </head>
 <body>
@@ -122,6 +164,18 @@
                 <select id="f-estado"><option value="">Todos</option></select>
             </div>
             <div>
+                <label>Diagnóstico</label>
+                <select id="f-diagnostico"><option value="">Todos</option></select>
+            </div>
+            <div>
+                <label>Vehículo (patente)</label>
+                <select id="f-vehiculo"><option value="">Todos</option></select>
+            </div>
+            <div>
+                <label>Semirremolque (patente)</label>
+                <select id="f-semirremolque"><option value="">Todos</option></select>
+            </div>
+            <div>
                 <label>Desde</label>
                 <input type="date" id="f-desde">
             </div>
@@ -151,7 +205,7 @@
                 <div class="stat-valor" id="stat-abiertas">0</div>
             </div>
             <div class="stat-card acento-verde">
-                <div class="stat-label">OT cerradas</div>
+                <div class="stat-label">OT terminadas</div>
                 <div class="stat-valor" id="stat-cerradas">0</div>
             </div>
             <div class="stat-card acento-naranja">
@@ -168,11 +222,18 @@
             </div>
         </div>
 
-        <div class="charts-grid">
-            <div class="chart-card full">
-                <div class="chart-titulo">Gastos mensuales (Mano de Obra + Repuestos)</div>
-                <div class="chart-container"><canvas id="chart-mensual"></canvas></div>
+        <div class="chart-card full">
+            <div class="chart-titulo-row">
+                <div class="chart-titulo">Gastos por período (Mano de Obra + Repuestos)</div>
+                <div class="tabs-periodo">
+                    <button class="tab-btn activo" data-vista="mensual" onclick="cambiarVistaPeriodo('mensual')">Mensual</button>
+                    <button class="tab-btn" data-vista="anual" onclick="cambiarVistaPeriodo('anual')">Anual</button>
+                </div>
             </div>
+            <div class="chart-container"><canvas id="chart-periodo"></canvas></div>
+        </div>
+
+        <div class="charts-grid">
             <div class="chart-card">
                 <div class="chart-titulo">Costo total por marca</div>
                 <div class="chart-container"><canvas id="chart-marca"></canvas></div>
@@ -189,6 +250,24 @@
                 <div class="chart-titulo">Costo por tipo de máquina</div>
                 <div class="chart-container"><canvas id="chart-tipo-maquina"></canvas></div>
             </div>
+            <div class="chart-card full">
+                <div class="chart-titulo">OT por diagnóstico</div>
+                <div class="chart-container"><canvas id="chart-diagnostico"></canvas></div>
+            </div>
+        </div>
+
+        <div class="tabla-card" style="margin-bottom:16px;">
+            <div class="chart-titulo">Buscar repuestos usados en una OT</div>
+            <div class="buscador-ot" style="margin-top:10px;">
+                <div>
+                    <label style="display:block;font-size:10px;text-transform:uppercase;color:#888;font-weight:bold;margin-bottom:4px;">ID de la OT</label>
+                    <input type="text" id="buscador-id-ot" placeholder="Ej: OT-00124">
+                </div>
+                <button class="btn-filtrar" onclick="buscarRepuestosPorId()">Ver repuestos</button>
+            </div>
+            <div style="font-size:11px;color:#999;margin-top:8px;">
+                Usa el ID_OT (identificador de la orden de trabajo), no el N° de factura/boleta.
+            </div>
         </div>
 
         <div class="tabla-card" style="margin-bottom:16px;">
@@ -202,11 +281,12 @@
         </div>
 
         <div class="tabla-card">
-            <div class="chart-titulo">Top 10 vehículos por costo acumulado</div>
+            <div class="chart-titulo">Top 10 vehículos por costo acumulado (clic en una fila para ver sus repuestos)</div>
             <table>
                 <thead>
                     <tr>
-                        <th>N° OT</th>
+                        <th>ID OT</th>
+                        <th>N° Factura/Boleta</th>
                         <th>Patente</th>
                         <th>Marca / Modelo</th>
                         <th>Taller</th>
@@ -221,10 +301,40 @@
     </div>
 </div>
 
+<!-- Modal de repuestos por OT -->
+<div class="modal-overlay" id="modal-overlay" onclick="cerrarModalSiEsOverlay(event)">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div>
+                <div class="modal-titulo" id="modal-titulo">OT —</div>
+                <div class="modal-sub" id="modal-sub"></div>
+            </div>
+            <button class="btn-cerrar-modal" onclick="cerrarModal()">✕</button>
+        </div>
+        <div class="modal-kpis">
+            <div class="modal-kpi"><div class="modal-kpi-label">Mano de obra</div><div class="modal-kpi-valor" id="modal-mo">$0</div></div>
+            <div class="modal-kpi"><div class="modal-kpi-label">Repuestos (OT)</div><div class="modal-kpi-valor" id="modal-repuestos">$0</div></div>
+            <div class="modal-kpi"><div class="modal-kpi-label">Total OT</div><div class="modal-kpi-valor" id="modal-total">$0</div></div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>SKU</th>
+                    <th class="num">Cant.</th>
+                    <th class="num">Precio unit.</th>
+                    <th class="num">Subtotal</th>
+                    <th>Origen</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody id="modal-tabla-consumos"></tbody>
+        </table>
+    </div>
+</div>
+
 <script>
     // ⚠ Reemplaza con la URL /exec de TU implementación del script de OT.
-    // Es un proyecto de Apps Script distinto al de Combustible: cada uno
-    // tiene su propia URL de despliegue.
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhOaBuHH6MSDopJhhgPo6xZ9t_Oi8_KOn4Vu2YxckAvO7sGaImOQhzwp4fCe-QV6ZEmw/exec";
 
     const COLOR_PRIMARIO = "#1a1a2e";
@@ -234,6 +344,8 @@
     const PALETA         = ["#1a1a2e","#e67e22","#2563eb","#16a34a","#c026d3","#0891b2","#ca8a04","#dc2626"];
 
     let charts = {};
+    let ultimoDataCargado = null;
+    let vistaPeriodo = 'mensual';
 
     function jsonp(url) {
         return new Promise((resolve, reject) => {
@@ -260,16 +372,20 @@
         document.getElementById("estado-cargando").style.display = "block";
         document.getElementById("contenido").style.display = "none";
 
-        const taller = document.getElementById("f-taller").value;
-        const tipo   = document.getElementById("f-tipo").value;
-        const estado = document.getElementById("f-estado").value;
-        const desde  = document.getElementById("f-desde").value;
-        const hasta  = document.getElementById("f-hasta").value;
+        const taller        = document.getElementById("f-taller").value;
+        const tipo           = document.getElementById("f-tipo").value;
+        const estado         = document.getElementById("f-estado").value;
+        const diagnostico    = document.getElementById("f-diagnostico").value;
+        const vehiculo       = document.getElementById("f-vehiculo").value;
+        const semirremolque  = document.getElementById("f-semirremolque").value;
+        const desde          = document.getElementById("f-desde").value;
+        const hasta           = document.getElementById("f-hasta").value;
 
         try {
             const params = new URLSearchParams({
                 accion: "metricas",
-                taller, tipoMaquina: tipo, estado,
+                taller, tipoMaquina: tipo, estado, diagnostico,
+                vehiculo, semirremolque,
                 fechaDesde: desde, fechaHasta: hasta,
             });
 
@@ -277,10 +393,12 @@
 
             if (!resp.ok) throw new Error(resp.error || "Error al cargar datos");
             const data = resp.data;
+            ultimoDataCargado = data;
 
             poblarFiltros(data.filtrosDisponibles);
             renderizarStats(data.kpis);
-            renderizarCharts(data);
+            renderizarChartPeriodo(data);
+            renderizarChartsSecundarios(data);
             renderizarTablaVehiculos(data.topVehiculos);
             renderizarTablaChoferes(data.topChoferes);
 
@@ -294,11 +412,8 @@
     }
 
     function limpiarFiltros() {
-        document.getElementById("f-taller").value = "";
-        document.getElementById("f-tipo").value = "";
-        document.getElementById("f-estado").value = "";
-        document.getElementById("f-desde").value = "";
-        document.getElementById("f-hasta").value = "";
+        ["f-taller","f-tipo","f-estado","f-diagnostico","f-vehiculo","f-semirremolque","f-desde","f-hasta"]
+            .forEach(id => document.getElementById(id).value = "");
         cargarDashboard();
     }
 
@@ -310,20 +425,17 @@
         if (filtrosYaPoblados) return;
         filtrosYaPoblados = true;
 
-        const selTaller = document.getElementById("f-taller");
-        disponibles.talleres.forEach(t => {
-            selTaller.innerHTML += `<option value="${t}">${t}</option>`;
-        });
+        poblarSelect("f-taller", disponibles.talleres);
+        poblarSelect("f-tipo", disponibles.tiposMaquina);
+        poblarSelect("f-estado", disponibles.estados);
+        poblarSelect("f-diagnostico", disponibles.diagnosticos);
+        poblarSelect("f-vehiculo", disponibles.vehiculos);
+        poblarSelect("f-semirremolque", disponibles.semirremolques);
+    }
 
-        const selTipo = document.getElementById("f-tipo");
-        disponibles.tiposMaquina.forEach(t => {
-            selTipo.innerHTML += `<option value="${t}">${t}</option>`;
-        });
-
-        const selEstado = document.getElementById("f-estado");
-        disponibles.estados.forEach(e => {
-            selEstado.innerHTML += `<option value="${e}">${e}</option>`;
-        });
+    function poblarSelect(id, valores) {
+        const select = document.getElementById(id);
+        (valores || []).forEach(v => { select.innerHTML += `<option value="${v}">${v}</option>`; });
     }
 
     function fmt(n) { return Math.round(n || 0).toLocaleString("es-CL"); }
@@ -343,54 +455,76 @@
         if (charts[id]) { charts[id].destroy(); delete charts[id]; }
     }
 
-    function renderizarCharts(data) {
-        destruirChart("mensual");
-        charts.mensual = new Chart(document.getElementById("chart-mensual"), {
-            type: "line",
-            data: {
-                labels: data.gastosPorMes.map(m => m.mes),
-                datasets: [{ label:"Gasto", data: data.gastosPorMes.map(m => m.costo), borderColor: COLOR_PRIMARIO, backgroundColor: "rgba(26,26,46,0.08)", fill:true, tension:0.3 }]
-            },
-            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
-        });
+    // ── Tabs Mensual / Anual con tooltip de MO + Repuestos + Total ──
+    function cambiarVistaPeriodo(vista) {
+        vistaPeriodo = vista;
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("activo", b.dataset.vista === vista));
+        if (ultimoDataCargado) renderizarChartPeriodo(ultimoDataCargado);
+    }
 
+    function renderizarChartPeriodo(data) {
+        const serie = vistaPeriodo === 'anual' ? data.gastosPorAnio : data.gastosPorMes;
+        destruirChart("periodo");
+        charts.periodo = new Chart(document.getElementById("chart-periodo"), {
+            type: "bar",
+            data: {
+                labels: serie.map(s => s.periodo),
+                datasets: [
+                    { label: "Mano de obra", data: serie.map(s => s.manoObra), backgroundColor: COLOR_AZUL, borderRadius: 4 },
+                    { label: "Repuestos",    data: serie.map(s => s.repuestos), backgroundColor: COLOR_NARANJA, borderRadius: 4 },
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                scales: { x: { stacked: true }, y: { stacked: true } },
+                plugins: {
+                    legend: { display: true, position: "bottom", labels: { boxWidth: 10, font: { size: 11 } } },
+                    tooltip: {
+                        callbacks: {
+                            footer: (items) => {
+                                const total = items.reduce((acc, it) => acc + it.parsed.y, 0);
+                                return `Total: $${fmt(total)} CLP`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderizarChartsSecundarios(data) {
         destruirChart("marca");
         charts.marca = new Chart(document.getElementById("chart-marca"), {
             type: "bar",
-            data: {
-                labels: data.costoPorMarca.map(x => x.etiqueta),
-                datasets: [{ data: data.costoPorMarca.map(x => x.costo), backgroundColor: COLOR_AZUL, borderRadius: 6 }]
-            },
+            data: { labels: data.costoPorMarca.map(x => x.etiqueta), datasets: [{ data: data.costoPorMarca.map(x => x.costo), backgroundColor: COLOR_AZUL, borderRadius: 6 }] },
             options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
         });
 
         destruirChart("taller");
         charts.taller = new Chart(document.getElementById("chart-taller"), {
             type: "bar",
-            data: {
-                labels: data.costoPorTaller.map(x => x.etiqueta),
-                datasets: [{ data: data.costoPorTaller.map(x => x.costo), backgroundColor: COLOR_NARANJA, borderRadius: 6 }]
-            },
+            data: { labels: data.costoPorTaller.map(x => x.etiqueta), datasets: [{ data: data.costoPorTaller.map(x => x.costo), backgroundColor: COLOR_NARANJA, borderRadius: 6 }] },
             options: { responsive:true, maintainAspectRatio:false, indexAxis:'y', plugins:{legend:{display:false}} }
         });
 
         destruirChart("estado");
         charts.estado = new Chart(document.getElementById("chart-estado"), {
             type: "doughnut",
-            data: {
-                labels: data.otPorEstado.map(x => x.etiqueta),
-                datasets: [{ data: data.otPorEstado.map(x => x.cantidadOT), backgroundColor: PALETA }]
-            },
+            data: { labels: data.otPorEstado.map(x => x.etiqueta), datasets: [{ data: data.otPorEstado.map(x => x.cantidadOT), backgroundColor: PALETA }] },
             options: { responsive:true, maintainAspectRatio:false }
         });
 
         destruirChart("tipoMaquina");
         charts.tipoMaquina = new Chart(document.getElementById("chart-tipo-maquina"), {
             type: "bar",
-            data: {
-                labels: data.otPorTipoMaquina.map(x => x.etiqueta),
-                datasets: [{ data: data.otPorTipoMaquina.map(x => x.costo), backgroundColor: COLOR_VERDE, borderRadius: 6 }]
-            },
+            data: { labels: data.otPorTipoMaquina.map(x => x.etiqueta), datasets: [{ data: data.otPorTipoMaquina.map(x => x.costo), backgroundColor: COLOR_VERDE, borderRadius: 6 }] },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+        });
+
+        destruirChart("diagnostico");
+        charts.diagnostico = new Chart(document.getElementById("chart-diagnostico"), {
+            type: "bar",
+            data: { labels: data.otPorDiagnostico.map(x => x.etiqueta), datasets: [{ data: data.otPorDiagnostico.map(x => x.cantidadOT), backgroundColor: COLOR_PRIMARIO, borderRadius: 6 }] },
             options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
         });
     }
@@ -398,16 +532,17 @@
     function renderizarTablaVehiculos(topVehiculos) {
         const tbody = document.getElementById("tabla-vehiculos");
         if (!topVehiculos || topVehiculos.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#999;padding:20px;">Sin datos para los filtros aplicados</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#999;padding:20px;">Sin datos para los filtros aplicados</td></tr>`;
             return;
         }
         tbody.innerHTML = topVehiculos.map(v => `
-            <tr>
-                <td><strong>${v.nroOT ?? v.idOT}</strong></td>
+            <tr class="fila-clicable" onclick="abrirModalRepuestos('${v.idOT}')">
+                <td><strong>${v.idOT}</strong></td>
+                <td>${v.nroOT ?? "—"}</td>
                 <td>${v.patente || "—"}</td>
                 <td>${v.marca || "—"} ${v.modelo || ""}</td>
                 <td>${v.taller || "—"}</td>
-                <td><span class="badge ${/cerrad/i.test(v.estadoOT) ? "cerrada" : "otro"}">${v.estadoOT || "—"}</span></td>
+                <td><span class="badge ${/terminad/i.test(v.estadoOT) ? "terminada" : "otro"}">${v.estadoOT || "—"}</span></td>
                 <td class="num">$${fmt(v.costoTotal)}</td>
             </tr>
         `).join("");
@@ -426,6 +561,63 @@
                 <td class="num">$${fmt(c.costo)}</td>
             </tr>
         `).join("");
+    }
+
+    // ── Modal: repuestos usados en una OT ─────────────────────────────
+    function buscarRepuestosPorId() {
+        const id = document.getElementById("buscador-id-ot").value.trim();
+        if (!id) return;
+        abrirModalRepuestos(id);
+    }
+
+    async function abrirModalRepuestos(idOT) {
+        const overlay = document.getElementById("modal-overlay");
+        overlay.classList.add("visible");
+        document.getElementById("modal-titulo").textContent = `OT ${idOT}`;
+        document.getElementById("modal-sub").textContent = "Cargando...";
+        document.getElementById("modal-tabla-consumos").innerHTML = "";
+
+        try {
+            const params = new URLSearchParams({ accion: "consumos_ot", idOT });
+            const resp = await jsonp(`${APPS_SCRIPT_URL}?${params.toString()}`);
+            if (!resp.ok) throw new Error(resp.error || "Error al buscar la OT");
+
+            const { ot, consumos } = resp.data;
+            document.getElementById("modal-titulo").textContent = `OT ${ot.idOT} — ${ot.patente || "s/patente"}`;
+            document.getElementById("modal-sub").textContent =
+                `N° Factura/Boleta: ${ot.nroOT ?? "—"} · ${ot.marca || ""} ${ot.modelo || ""} · Taller: ${ot.taller || "—"} · Chofer: ${ot.chofer || "—"} · Estado: ${ot.estadoOT || "—"}`;
+
+            document.getElementById("modal-mo").textContent = `$${fmt(ot.manoObra)}`;
+            document.getElementById("modal-repuestos").textContent = `$${fmt(ot.repuestos)}`;
+            document.getElementById("modal-total").textContent = `$${fmt(ot.costoTotal)}`;
+
+            const tbody = document.getElementById("modal-tabla-consumos");
+            if (!consumos || consumos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#999;padding:16px;">Esta OT no tiene repuestos registrados en Consumos_OT</td></tr>`;
+            } else {
+                tbody.innerHTML = consumos.map(c => `
+                    <tr>
+                        <td><strong>${c.producto}</strong>${c.marcaProducto ? ` <span style="color:#999;font-weight:normal;">(${c.marcaProducto})</span>` : ""}</td>
+                        <td>${c.sku || "—"}</td>
+                        <td class="num">${c.cantidad}</td>
+                        <td class="num">$${fmt(c.precioUnitario)}</td>
+                        <td class="num">$${fmt(c.subtotal)}</td>
+                        <td>${c.origen || "—"}</td>
+                        <td>${c.fechaCreacion || "—"}</td>
+                    </tr>
+                `).join("");
+            }
+        } catch (err) {
+            document.getElementById("modal-sub").textContent = `⚠ ${err.message}`;
+        }
+    }
+
+    function cerrarModal() {
+        document.getElementById("modal-overlay").classList.remove("visible");
+    }
+
+    function cerrarModalSiEsOverlay(event) {
+        if (event.target.id === "modal-overlay") cerrarModal();
     }
 </script>
 </body>
