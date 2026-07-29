@@ -90,6 +90,7 @@
     thead th.num { text-align:right; }
     tbody td { padding:8px 12px; border-bottom:1px solid #eee; white-space:nowrap; }
     tbody td.num { text-align:right; font-weight:bold; }
+    tbody td.obs-cell { max-width:220px; overflow:hidden; text-overflow:ellipsis; cursor:help; }
     tbody tr:nth-child(even) { background:#f8f9fb; }
     tbody tr:hover { background:#f0f4ff; }
     tr.fila-clicable { cursor:pointer; }
@@ -260,13 +261,10 @@
             <div class="chart-titulo">Buscar repuestos usados en una OT</div>
             <div class="buscador-ot" style="margin-top:10px;">
                 <div>
-                    <label style="display:block;font-size:10px;text-transform:uppercase;color:#888;font-weight:bold;margin-bottom:4px;">ID de la OT</label>
-                    <input type="text" id="buscador-id-ot" placeholder="Ej: OT-00124">
+                    <label style="display:block;font-size:10px;text-transform:uppercase;color:#888;font-weight:bold;margin-bottom:4px;">N° de OT</label>
+                    <input type="text" id="buscador-nro-ot" placeholder="Ej: OT00007">
                 </div>
-                <button class="btn-filtrar" onclick="buscarRepuestosPorId()">Ver repuestos</button>
-            </div>
-            <div style="font-size:11px;color:#999;margin-top:8px;">
-                Usa el ID_OT (identificador de la orden de trabajo), no el N° de factura/boleta.
+                <button class="btn-filtrar" onclick="buscarRepuestosPorNro()">Ver repuestos</button>
             </div>
         </div>
 
@@ -285,13 +283,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID OT</th>
-                        <th>N° Factura/Boleta</th>
+                        <th>N° OT</th>
                         <th>Patente</th>
                         <th>Marca / Modelo</th>
                         <th>Taller</th>
                         <th>Estado</th>
                         <th class="num">Costo</th>
+                        <th>Observación</th>
                     </tr>
                 </thead>
                 <tbody id="tabla-vehiculos"></tbody>
@@ -529,6 +527,16 @@
         });
     }
 
+    function truncarTexto(texto, maxLen) {
+        if (!texto) return '';
+        const limpio = String(texto).trim();
+        return limpio.length > maxLen ? limpio.slice(0, maxLen) + '…' : limpio;
+    }
+
+    function escaparAtributo(texto) {
+        return String(texto || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
     function renderizarTablaVehiculos(topVehiculos) {
         const tbody = document.getElementById("tabla-vehiculos");
         if (!topVehiculos || topVehiculos.length === 0) {
@@ -536,14 +544,14 @@
             return;
         }
         tbody.innerHTML = topVehiculos.map(v => `
-            <tr class="fila-clicable" onclick="abrirModalRepuestos('${v.idOT}')">
-                <td><strong>${v.idOT}</strong></td>
-                <td>${v.nroOT ?? "—"}</td>
+            <tr class="fila-clicable" onclick="abrirModalRepuestos('${v.nroOT}')">
+                <td><strong>${v.nroOT || v.idOT}</strong></td>
                 <td>${v.patente || "—"}</td>
                 <td>${v.marca || "—"} ${v.modelo || ""}</td>
                 <td>${v.taller || "—"}</td>
                 <td><span class="badge ${/terminad/i.test(v.estadoOT) ? "terminada" : "otro"}">${v.estadoOT || "—"}</span></td>
                 <td class="num">$${fmt(v.costoTotal)}</td>
+                <td class="obs-cell" title="${escaparAtributo(v.observacion)}">${truncarTexto(v.observacion, 60) || "—"}</td>
             </tr>
         `).join("");
     }
@@ -564,28 +572,28 @@
     }
 
     // ── Modal: repuestos usados en una OT ─────────────────────────────
-    function buscarRepuestosPorId() {
-        const id = document.getElementById("buscador-id-ot").value.trim();
-        if (!id) return;
-        abrirModalRepuestos(id);
+    function buscarRepuestosPorNro() {
+        const nro = document.getElementById("buscador-nro-ot").value.trim();
+        if (!nro) return;
+        abrirModalRepuestos(nro);
     }
 
-    async function abrirModalRepuestos(idOT) {
+    async function abrirModalRepuestos(nroOT) {
         const overlay = document.getElementById("modal-overlay");
         overlay.classList.add("visible");
-        document.getElementById("modal-titulo").textContent = `OT ${idOT}`;
+        document.getElementById("modal-titulo").textContent = `OT ${nroOT}`;
         document.getElementById("modal-sub").textContent = "Cargando...";
         document.getElementById("modal-tabla-consumos").innerHTML = "";
 
         try {
-            const params = new URLSearchParams({ accion: "consumos_ot", idOT });
+            const params = new URLSearchParams({ accion: "consumos_ot", nroOT });
             const resp = await jsonp(`${APPS_SCRIPT_URL}?${params.toString()}`);
             if (!resp.ok) throw new Error(resp.error || "Error al buscar la OT");
 
             const { ot, consumos } = resp.data;
-            document.getElementById("modal-titulo").textContent = `OT ${ot.idOT} — ${ot.patente || "s/patente"}`;
+            document.getElementById("modal-titulo").textContent = `OT ${ot.nroOT} — ${ot.patente || "s/patente"}`;
             document.getElementById("modal-sub").textContent =
-                `N° Factura/Boleta: ${ot.nroOT ?? "—"} · ${ot.marca || ""} ${ot.modelo || ""} · Taller: ${ot.taller || "—"} · Chofer: ${ot.chofer || "—"} · Estado: ${ot.estadoOT || "—"}`;
+                `${ot.marca || ""} ${ot.modelo || ""} · Taller: ${ot.taller || "—"} · Chofer: ${ot.chofer || "—"} · Estado: ${ot.estadoOT || "—"}`;
 
             document.getElementById("modal-mo").textContent = `$${fmt(ot.manoObra)}`;
             document.getElementById("modal-repuestos").textContent = `$${fmt(ot.repuestos)}`;
