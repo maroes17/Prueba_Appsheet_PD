@@ -77,7 +77,42 @@
     tbody td { padding:8px 12px; border-bottom:1px solid #eee; white-space:nowrap; }
     tbody td.num { text-align:right; font-weight:bold; }
     tbody tr:nth-child(even) { background:#f8f9fb; }
-    tbody tr:hover { background:#f0f4ff; }
+    tbody tr:hover { background:#f0f4ff; cursor: pointer; }
+    tbody tr[data-clickable]::after { content: ""; }
+
+    /* Modal popup — detalle de tramos por control */
+    .modal-overlay {
+        display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45);
+        z-index:1000; align-items:center; justify-content:center; padding:20px;
+    }
+    .modal-overlay.visible { display:flex; }
+    .modal-card {
+        background:white; border-radius:12px; max-width:520px; width:100%;
+        max-height:80vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,0.25);
+    }
+    .modal-header {
+        background:#1a1a2e; color:white; padding:16px 20px;
+        display:flex; justify-content:space-between; align-items:center;
+        border-radius:12px 12px 0 0; position:sticky; top:0;
+    }
+    .modal-header-title { font-size:14px; font-weight:bold; }
+    .modal-header-sub { font-size:11px; color:#aaa; margin-top:2px; }
+    .modal-close {
+        background:transparent; border:none; color:white; font-size:22px;
+        cursor:pointer; line-height:1; padding:0 4px;
+    }
+    .modal-body { padding:16px 20px; }
+    .modal-tramo-row {
+        display:flex; justify-content:space-between; align-items:center;
+        padding:12px 14px; background:#f7f8fa; border-radius:8px;
+        margin-bottom:10px; border-left:3px solid #1a1a2e;
+    }
+    .modal-tramo-nombre { font-size:13px; font-weight:bold; color:#111; }
+    .modal-tramo-detalle { font-size:11px; color:#888; margin-top:3px; }
+    .modal-tramo-rend { text-align:right; }
+    .modal-tramo-rend-valor { font-size:18px; font-weight:900; color:#16a34a; }
+    .modal-tramo-rend-unidad { font-size:11px; color:#888; }
+    .modal-empty { text-align:center; color:#999; padding:20px; font-size:13px; }
 
     .estado-msg { text-align:center; padding:40px 20px; color:#888; font-size:14px; }
     .spinner {
@@ -201,6 +236,20 @@
     </div>
 </div>
 
+<!-- Modal: detalle de tramos por control (doble clic en la tabla) -->
+<div class="modal-overlay" id="modal-overlay" onclick="cerrarModalSiEsFondo(event)">
+    <div class="modal-card">
+        <div class="modal-header">
+            <div>
+                <div class="modal-header-title" id="modal-titulo">Detalle de tramos</div>
+                <div class="modal-header-sub" id="modal-subtitulo"></div>
+            </div>
+            <button class="modal-close" onclick="cerrarModal()">×</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+</div>
+
 <script>
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxkCU-XZe5q2CPI92MkQgT88C1AnzoriwkddHDLsaZZbaOBmXCg4AsFuYFWyjxisw-S_w/exec";
 
@@ -211,6 +260,7 @@
     const PALETA         = ["#1a1a2e","#e67e22","#2563eb","#16a34a","#c026d3","#0891b2","#ca8a04","#dc2626"];
 
     let charts = {};
+    let ultimoDashboardData = null; // guarda la respuesta completa para el popup
 
     function jsonp(url) {
         return new Promise((resolve, reject) => {
@@ -253,6 +303,8 @@
             const data = await jsonp(`${APPS_SCRIPT_URL}?${params.toString()}`);
 
             if (!data.ok) throw new Error(data.error || "Error al cargar datos");
+
+            ultimoDashboardData = data; // para el popup de doble clic
 
             poblarFiltros(data.filtros_disponibles);
             renderizarStats(data.totales);
@@ -372,7 +424,7 @@
             return;
         }
         tbody.innerHTML = porControl.map(c => `
-            <tr>
+            <tr data-clickable ondblclick="abrirModalTramos('${c.id_control}', '${(c.nombre+"").replace(/'/g,"\\'")}', '${(c.chofer||"").replace(/'/g,"\\'")}')" title="Doble clic para ver detalle por tramo">
                 <td><strong>${c.nombre}</strong></td>
                 <td>${c.chofer || "—"}</td>
                 <td>${c.viajes || "—"}</td>
@@ -383,6 +435,42 @@
                 <td class="num">${c.rendimiento_promedio ?? "—"}</td>
             </tr>
         `).join("");
+    }
+
+    // ── Popup: detalle de tramos por control (doble clic en la tabla) ──
+    function abrirModalTramos(idControl, nombreControl, chofer) {
+        const tramos = (ultimoDashboardData?.tramos_por_control || {})[idControl] || [];
+
+        document.getElementById("modal-titulo").textContent = `Control N° ${nombreControl}`;
+        document.getElementById("modal-subtitulo").textContent = chofer ? `Chofer: ${chofer}` : "";
+
+        const body = document.getElementById("modal-body");
+        if (tramos.length === 0) {
+            body.innerHTML = `<div class="modal-empty">No hay tramos con rendimiento calculable para este control.<br><br>Esto puede pasar si solo hay una carga registrada, o si falta una carga de referencia (apertura) al inicio del control.</div>`;
+        } else {
+            body.innerHTML = tramos.map(t => `
+                <div class="modal-tramo-row">
+                    <div>
+                        <div class="modal-tramo-nombre">${t.tramo}</div>
+                        <div class="modal-tramo-detalle">${t.km.toLocaleString("es-CL")} km · ${t.litros_consumidos.toLocaleString("es-CL")} L consumidos</div>
+                    </div>
+                    <div class="modal-tramo-rend">
+                        <div class="modal-tramo-rend-valor">${t.rendimiento ?? "—"}</div>
+                        <div class="modal-tramo-rend-unidad">km/L</div>
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        document.getElementById("modal-overlay").classList.add("visible");
+    }
+
+    function cerrarModal() {
+        document.getElementById("modal-overlay").classList.remove("visible");
+    }
+
+    function cerrarModalSiEsFondo(event) {
+        if (event.target.id === "modal-overlay") cerrarModal();
     }
 </script>
 </body>
