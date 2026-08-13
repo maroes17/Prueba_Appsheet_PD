@@ -1,93 +1,119 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Entrega de EPP</title>
-  <style>
-    @page { size: A4; margin: 0; }
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    .page { width: 210mm; min-height: 297mm; padding: 15mm; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <title>Entrega de EPP - A4</title>
+    <style>
+        @page { size: A4; margin: 0; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        .page { width: 210mm; min-height: 297mm; padding: 15mm; margin: 10mm auto; background: white; box-sizing: border-box; }
 
-    /* Encabezado */
-    .header-table { width: 100%; border-collapse: collapse; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
-    .header-table td { border: none; padding: 0; vertical-align: middle; }
-    .logo img { max-height: 60px; display: block; }
-    .title { text-align: center; font-weight: bold; font-size: 16px; }
-    .folio { text-align: right; font-size: 10px; }
+        /* Encabezado */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;}
+        .logo img { max-height: 60px; display: block; }
+        .title { text-align: center; flex-grow: 1; font-weight: bold; font-size: 16px; }
 
-    /* Textos legales */
-    .legal { font-size: 11px; text-align: justify; margin: 15px 0; line-height: 1.2; }
+        /* Textos Legales */
+        .legal { font-size: 11px; text-align: justify; margin: 15px 0; line-height: 1.2; }
 
-    /* Información del trabajador */
-    .info-box { margin-bottom: 20px; border: 1px solid #000; padding: 10px; font-size: 12px; }
-    .info-row { margin-bottom: 5px; }
-    .label { font-weight: bold; display: inline-block; width: 150px; }
+        /* Información del Trabajador */
+        .info-box { margin-bottom: 20px; border: 1px solid #000; padding: 10px; font-size: 12px; }
+        .info-row { display: flex; margin-bottom: 5px; }
+        .label { font-weight: bold; width: 150px; }
 
-    /* Tabla de productos */
-    table.items { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    table.items th, table.items td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 11px; }
-    table.items th { background-color: #eee; }
+        /* Tabla de Productos */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 11px; }
+        th { background-color: #eee; }
 
-    /* Firmas: tabla en vez de flex, más compatible con el conversor de Apps Script */
-    .signature-table { width: 100%; margin-top: 100px; border-collapse: collapse; }
-    .signature-table td { border: none; text-align: center; font-size: 11px; padding-top: 5px; width: 50%; }
-    .sig-line { border-top: 1px solid #000; width: 200px; margin: 0 auto; padding-top: 5px; }
-  </style>
+        /* Firmas */
+        .signature-section { margin-top: 100px; display: flex; justify-content: space-around; text-align: center; font-size: 11px; }
+        .sig-box { border-top: 1px solid #000; width: 200px; padding-top: 5px; }
+
+        /* El botón de imprimir no debe salir en el PDF/impresión */
+        @media print {
+            body { background: none; }
+            .page { margin: 0; box-shadow: none; }
+            .btn-print { display: none; }
+        }
+        .btn-print {
+            position: fixed; bottom: 20px; right: 20px;
+            padding: 10px 20px; background: #007bff; color: white;
+            border: none; border-radius: 5px; cursor: pointer; font-size: 14px;
+        }
+    </style>
 </head>
 <body>
-  <div class="page">
 
-    <table class="header-table">
-      <tr>
-        <td style="width: 25%;" class="logo"><img src="<?= logoUrl ?>" alt="Logo"></td>
-        <td style="width: 50%;" class="title">ENTREGA DE ELEMENTOS DE PROTECCIÓN PERSONAL</td>
-        <td style="width: 25%;" class="folio">N° Entrega: <?= nro ?></td>
-      </tr>
-    </table>
+    <button class="btn-print" onclick="window.print()">Imprimir</button>
 
-    <div class="legal">
-      De acuerdo a lo estipulado en la Ley 16.744, Art. 68 inciso tres "Las empresas deberán proporcionar a sus trabajadores, los equipos e implementos de protección necesarios, no pudiendo en caso alguno cobrarles su valor". Según el D.S 594 Artículo 53, el empleador deberá proporcionarlos libres de costo y el trabajador deberá usarlos en forma permanente.
+    <div class="page" id="acta">
+        <div class="header">
+            <div class="logo">
+                <img src="Logotipo_Ceropi.png" alt="Logo" style="height: 100px; width: auto;">
+            </div>
+            <div class="title">ENTREGA DE ELEMENTOS DE PROTECCIÓN PERSONAL</div>
+            <div style="font-size: 10px;">N° Entrega: <span id="nro_entrega"></span></div>
+        </div>
+
+        <div class="legal">
+            De acuerdo a lo estipulado en la Ley 16.744, Art. 68 inciso tres "Las empresas deberán proporcionar a sus trabajadores, los equipos e implementos de protección necesarios, no pudiendo en caso alguno cobrarles su valor". Según el D.S 594 Artículo 53, el empleador deberá proporcionarlos libres de costo y el trabajador deberá usarlos en forma permanente.
+        </div>
+
+        <div class="info-box">
+            <div class="info-row"><span class="label">NOMBRE TRABAJADOR:</span> <span id="conductor"></span></div>
+            <div class="info-row"><span class="label">FECHA DE RECEPCIÓN:</span> <span id="fecha"></span></div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ELEMENTO ENTREGADO</th>
+                    <th>CANTIDAD</th>
+                    <th>FIRMA RECIBÍ CONFORME</th>
+                </tr>
+            </thead>
+            <tbody id="lista_productos">
+                </tbody>
+        </table>
+
+        <p style="font-size: 11px; margin-top: 15px;">
+            El trabajador se compromete a mantener los elementos en buen estado y declara haberlos recibido en forma gratuita.
+        </p>
+
+        <div class="signature-section">
+            <div class="sig-box">Firma Trabajador</div>
+            <div class="sig-box">Firma Entrega (Bodega)</div>
+        </div>
     </div>
 
-    <div class="info-box">
-      <div class="info-row"><span class="label">NOMBRE TRABAJADOR:</span> <span><?= conductor ?></span></div>
-      <div class="info-row"><span class="label">FECHA DE RECEPCIÓN:</span> <span><?= fecha ?></span></div>
-    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const params = new URLSearchParams(window.location.search);
 
-    <table class="items">
-      <thead>
-        <tr>
-          <th>ELEMENTO ENTREGADO</th>
-          <th>CANTIDAD</th>
-          <th>FIRMA RECIBÍ CONFORME</th>
-        </tr>
-      </thead>
-      <tbody>
-        <? if (items.length > 0) { ?>
-          <? for (var i = 0; i < items.length; i++) { ?>
-            <tr>
-              <td><?= items[i].producto ?></td>
-              <td><?= items[i].cantidad ?></td>
-              <td>&nbsp;</td>
-            </tr>
-          <? } ?>
-        <? } else { ?>
-          <tr><td colspan="3">No se registraron productos</td></tr>
-        <? } ?>
-      </tbody>
-    </table>
+            // Datos generales
+            document.getElementById('nro_entrega').innerText = params.get('nro') || '---';
+            document.getElementById('conductor').innerText = params.get('conductor') || '---';
+            document.getElementById('fecha').innerText = params.get('fecha') || '---';
 
-    <p style="font-size: 11px; margin-top: 15px;">
-      El trabajador se compromete a mantener los elementos en buen estado y declara haberlos recibido en forma gratuita.
-    </p>
+            // Lista de productos y cantidades (vienen separados por coma desde AppSheet)
+            const productos = params.get('prod') ? params.get('prod').split(',') : [];
+            const cantidades = params.get('cant') ? params.get('cant').split(',') : [];
+            const tbody = document.getElementById('lista_productos');
 
-    <table class="signature-table">
-      <tr>
-        <td><div class="sig-line">Firma Trabajador</div></td>
-        <td><div class="sig-line">Firma Entrega (Bodega)</div></td>
-      </tr>
-    </table>
-
-  </div>
+            if (productos.length > 0 && productos[0] !== '') {
+                productos.forEach((p, index) => {
+                    const row = `<tr>
+                        <td>${p}</td>
+                        <td>${cantidades[index] || 1}</td>
+                        <td></td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3">No se registraron productos</td></tr>';
+            }
+        });
+    </script>
 </body>
 </html>
